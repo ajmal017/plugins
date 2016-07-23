@@ -1,0 +1,4 @@
+update http://iris.scanmine.com/aw_config_testing/widget_test_01.xml
+delete http://iris.scanmine.com/aw_config_testing/widget_test_01.xml
+delete http://iris.scanmine.com/aw_config_testing/widget_test_02.xml
+update http://iris.scanmine.com/aw_config_testing/widget_test_03.xml

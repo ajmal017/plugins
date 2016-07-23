@@ -1,0 +1,376 @@
+
+#aw-settings-container {
+    border: 1px solid #dfdfdf;
+    border-radius: 3px;
+    display: block;
+    height: auto;
+    margin: 20px 0 20px 0px;
+    /*max-width: 860px;
+    min-width: 780px;*/
+    padding: 0;
+    width: 100%;
+}
+h3.aw-type-title {
+    background-color: #f1f1f1;
+    background-image: -moz-linear-gradient(center top , #f9f9f9, #ececec);
+    border-bottom: 1px solid #dfdfdf;
+    border-radius: 3px 3px 0 0;
+    color: #3a3a3a;
+    display: block;
+    font: bold 16px/40px Helvetica,sans-serif;
+    height: 40px;
+    margin: 0;
+    padding: 0 2%;
+    text-align: left;
+    text-shadow: 0 1px 0 #fff;
+    width: 96%;
+}
+.aw-option-container {
+    border-bottom: 1px solid #dfdfdf;
+    display: block;
+    margin: 0;
+    padding: 3%;
+    width: 94%;
+}
+.aw-feature-desc{ 
+margin-bottom:15px;
+padding-bottom:15px;
+border-bottom:1px solid #dfdfdf;
+}
+#aw-first-option {
+    margin: -25px 0 0;
+}
+#aw-devmode {
+    border-bottom: medium none;
+}
+label.aw-feature-title {
+    display: inline-block;
+    /*float: left;*/
+    font: bold 16px/20px Helvetica,sans-serif;
+    margin: 0 2% 0 0;
+    padding: 0;
+    width: 100%;
+	text-align:center;
+}
+.aw-option-container .aw-feature {
+    display: block;
+   /* float: left;*/
+    height: auto;
+    margin: 2px 0 0 0;
+    padding: 0;
+    /*width: 77%;*/
+}
+#aw-settings-container .textarea, #aw-settings-container .text {
+    background: none repeat scroll 0 0 #ffffe0;
+}
+.aw-option-container .textarea {
+    height: 500px;
+    margin: 0;
+    padding: 5px;
+    width: 100%;
+}
+.aw-option-container .textarea, .aw-option-container .text {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+.aw-option-container .textarea:focus, .aw-option-container .text:focus {
+    border: 1px solid #ea0000;
+}
+#aw-settings-container .textarea:focus, #aw-settings-container .text:focus {
+    border-color: #ea0000;
+    outline: medium none;
+}
+.aw-option-container .aw-feature input[type="text"], .aw-option-container .text {
+    margin: 0;
+    padding: 10px;
+    width: 100%;
+}
+.aw-option-container .checkbox {
+    margin: 0 2px 0 0;
+    vertical-align: middle;
+}
+.aw-option-container label {
+    margin: -1px 0 5px;
+}
+.aw-option-container .feature-desc {
+    color: #888;
+    display: inline-block;
+    float: left;
+    font: 11px/20px Helvetica,sans-serif;
+    margin: 0;
+    padding: 0 2% 0 0;
+    width: 33%;
+}
+.aw-content-sections {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    display: block;
+    margin: 3%;
+    padding: 0 0 20px;
+    width: 94%;
+}
+.aw-content-titles {
+    background: none repeat scroll 0 0 #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    border-radius: 3px 3px 0 0;
+    color: #3a3a3a;
+    display: block;
+    height: 30px;
+    line-height: 30px;
+    margin: 0;
+    padding: 0 2% 0 5%;
+    position: relative;
+    text-shadow: 0 1px 0 #fff;
+    width: 93%;
+}
+span.aw-handle {
+    background: url("/wp-content/themes/frank/admin/images/handle.png") no-repeat scroll center center rgba(0, 0, 0, 0);
+    cursor: move;
+    display: block;
+    height: 20px;
+    left: 10px;
+    position: absolute;
+    top: 6px;
+    width: 20px;
+}
+.aw-dragdrop {
+    color: #ccc;
+    display: block;
+    float: left;
+    font: italic 11px/30px serif;
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 1px;
+}
+a.aw-content-section-delete {
+    color: #ccc;
+    display: block;
+    font: lighter 18px/30px Helvetica,sans-serif;
+    position: absolute;
+    right: 10px;
+    text-decoration: none;
+    top: 1px;
+}
+.aw-content-groups {
+    clear: both;
+    display: block;
+}
+.aw-main-options-container {
+    display: block;
+    margin: 20px 0 0;
+    padding: 0 20px;
+}
+.aw-top-options-container {
+    display: block;
+    height: 60px;
+    margin: 20px 0 0;
+    padding: 0 20px;
+}
+.aw-display-types, .aw-display-titles, .aw-display-posts {
+    display: block;
+    float: left;
+    margin: 0 40px 20px 0;
+}
+label.aw-section-title {
+    color: #555;
+    display: block;
+    font-weight: bold;
+    margin: 0 0 5px;
+    padding: 0;
+}
+label.inline {
+    display: inline;
+}
+.aw-display-types select, .aw-display-types select option {
+    max-width: 180px;
+    overflow: hidden;
+}
+.aw-text-title {
+    min-width: 250px;
+    width: 100%;
+}
+.aw-display-types {
+    margin: 0;
+}
+.aw-bottom-options-container {
+    clear: both;
+    display: block;
+    margin: 20px 0 0;
+    padding: 0 20px;
+}
+.aw-display-captions, .aw-display-categories {
+    display: block;
+    float: left;
+    margin: 0 40px 0 0;
+}
+.aw-display-captions .textarea {
+    display: block;
+    height: 93px;
+    margin: 0 0 20px;
+    min-width: 250px;
+    padding: 10px;
+    width: 100%;
+}
+.aw-display-categories {
+    margin: 0;
+}
+.aw-categories-container {
+    background: none repeat scroll 0 0 #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    display: block;
+    height: auto;
+    min-height: 60px;
+    padding: 10px;
+    width: 370px;
+}
+.aw-categories-container ul {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+.aw-categories-container .aw-categorychecklist {
+    background: none repeat scroll 0 0 #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    display: block;
+    float: left;
+    height: auto;
+    margin-bottom: 25px;
+    max-height: 300px;
+    min-height: 18px;
+    overflow-y: scroll;
+    padding: 10px;
+    width: 348px;
+}
+.aw-categories-container .aw-categorychecklist li {
+    display: block;
+    margin: 5px 0;
+    padding: 0;
+    width: auto;
+}
+.aw-group li {
+    display: block;
+    float: left;
+    height: 30px;
+    margin: 0 15px 0 0;
+    padding: 0;
+    width: auto;
+}
+.aw-select-button {
+    background-color: #f1f1f1;
+    background-image: -moz-linear-gradient(center top , #f9f9f9, #ececec);
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    color: #3a3a3a;
+    display: block;
+    float: left;
+    font: 12px/24px Helvetica,sans-serif;
+    height: 24px;
+    margin: 0;
+    padding: 0 10px;
+    text-decoration: none;
+}
+.aw-select-button:hover {
+    box-shadow: 0 0 5px #ccc;
+    color: #3a3a3a;
+}
+#aw-add-content-section {
+    background-color: #f1f1f1;
+    background-image: -moz-linear-gradient(center top , #f9f9f9, #ececec);
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    color: #3a3a3a;
+    display: block;
+    height: 38px;
+    margin: 0 3% 25px;
+    padding: 0;
+    width: 94%;
+}
+#aw-add-content-section:hover {
+    box-shadow: 0 0 5px #ccc;
+}
+#aw-add-content-section a {
+    color: #3a3a3a;
+    display: block;
+    font: bold 14px/40px Helvetica,sans-serif;
+    text-align: center;
+    text-decoration: none;
+}
+.aw-helper-container {
+    border-bottom: 1px solid #ddd;
+    display: block;
+    font: italic 16px/20px serif;
+    margin: -25px 0 25px;
+    padding: 15px 3%;
+    width: 94%;
+}
+.aw-helper-container p {
+    color: #ccc;
+    margin: 0;
+    padding: 0;
+}
+.aw-button-container {
+    border-bottom: 1px solid #ddd;
+    display: block;
+    height: 30px;
+    margin: 0 0 25px;
+    padding: 3%;
+    width: 94%;
+}
+.aw-button-container.bottom {
+    border-bottom: medium none;
+    border-top: 1px solid #ddd;
+    margin: 0;
+}
+.aw-save-settings {
+    background-color: #f1f1f1;
+    background-image: -moz-linear-gradient(center top , #f9f9f9, #ececec);
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    display: block;
+    float: right;
+    font: bold 12px/30px Helvetica,sans-serif;
+    height: 32px;
+    margin: 0;
+    padding: 0 15px;
+}
+.aw-save-settings:hover {
+    box-shadow: 0 0 5px #ccc;
+}
+h4.aw-saved-success, h4.aw-reset-success {
+    background-color: #cde9b9;
+    background-image: -moz-linear-gradient(center top , #edfdde, #cde9b9);
+    border: 1px solid #a0da72;
+    border-radius: 3px;
+    color: #277b00;
+    display: block;
+    float: left;
+    font: bold 12px/30px Helvetica,sans-serif;
+    height: 30px;
+    margin: 0;
+    padding: 0 20px 0 10px;
+    text-shadow: 0 1px 0 #fff;
+    width: auto;
+}
+h4.aw-info {
+    background-color: #cde9b9;
+    background-image: -moz-linear-gradient(center top , #e7fdff, #cafbff);
+    border: 1px solid #4ecdde;
+    border-radius: 3px;
+    color: #007a8b;
+    display: block;
+    float: left;
+    font: bold 12px/30px Helvetica,sans-serif;
+    height: 30px;
+    margin: 0;
+    padding: 0 15px;
+    text-shadow: 0 1px 0 #fff;
+    width: auto;
+}
+h4.aw-saved-success img, h4.aw-reset-success img {
+    margin: -3px 5px 0 0;
+    vertical-align: middle;
+}

@@ -1,0 +1,740 @@
+<?php
+/*
+Plugin Name: Cron Update RSS Feed
+Plugin URI:
+Description: Update RSS Feed By Cronjobs.
+Version: 0.3
+Author: Artworld Websolutions Pvt. Ltd.
+Author URI: www.artworldwebsolutions.com
+License:
+*/
+//file_put_contents(dirname(__FILE__).'/testA.txt',print_r($_POST,true));
+//file_put_contents(dirname(__FILE__)."/test1.txt",print_r("a",true));
+if(isset($_GET['fileupdate']) && $_GET['fileupdate']=="RSSFEED"){
+global $wpdb;
+		
+echo "<p><span style=\"font-size:20px;font-weight:bold;\">Scanmine RSS Feed Updates</span></p>";
+global $wpdb;
+$rssFileList = $wpdb->get_results("SELECT * FROM rssfilelist WHERE status='Active'");
+$fileurlarray = array();
+for($x=0;$x<count($rssFileList);$x++){
+	$fileurlarray[] = $rssFileList[$x]->fileurl;
+}
+//$fileurlarray[] = "rssfeedlist.txt";
+$rssfilelist = array();
+if(!empty($fileurlarray)){
+	foreach($fileurlarray as $file){
+		$contents = file($file);
+		//echo "<pre>";
+		//print_r($contents);		 
+		$cnt=0;
+		foreach($contents as $value){
+			$contentssub = explode("\n",$value);
+			foreach($contentssub as $value1){
+				if($value1!=""){
+				 $valuesub = preg_split("/[\s,]+/", $value1);
+				// echo $valuesub[0]."========".$valuesub[1]."=========".$valuesub[2]."========".$valuesub[3];
+		  		// echo "<br>";
+				if(!empty($valuesub[1]) && count($valuesub)>4){ 
+					//echo "A--".count($valuesub)."--".$valuesub[1]; 
+					$blogkeys = $valuesub[0]."&nbsp;".$valuesub[1]."&nbsp;".$valuesub[2];
+					$rssfilelist[$blogkeys] = $valuesub[3];
+					//echo "<br>";
+				}				 
+			 }
+
+			/*echo "<pre>";
+			echo"==========================<br>";
+			print_r($valuesub);
+			echo "<br>Count:".count($valuesub);	*/
+		}
+	}
+	}
+}
+
+$rssfeedarray = array_unique($rssfilelist);
+
+if(count($rssfeedarray)){
+	//======Delete lines form log file if necessary=====//
+		if(file_exists(dirname(__FILE__).'/rsslogtext.txt'))
+		{
+			$save_lines = 35000; // Number of lines to keep in file
+			//$filesize = filesize(dirname(__FILE__).'/rsslogtext.txt');
+			$lines = file(dirname(__FILE__).'/rsslogtext.txt');
+			
+			if(count($lines) > $save_lines)
+			{
+				$a_s_offset = count($lines) - $save_lines;
+				$lines = array_slice($lines, $a_s_offset);
+				// Write to file
+				$file = fopen(dirname(__FILE__).'/rsslogtext.txt', 'w');
+				fwrite($file, implode('', $lines));
+				fclose($file);
+			}
+		}
+ 
+	//=======================================================//
+	$flagthemesoptions = false;
+	//====Cron header=============//
+	$logtextcron  = "<p><strong>=====Cron Logs</strong>=====<br/>{cronlogtext}<br/></p>";
+	file_put_contents(dirname(__FILE__)."/rsslogtext.txt",print_r($logtextcron,true),FILE_APPEND);
+	
+	foreach( $rssfeedarray as $rsskey => $rssvalue ){
+	 $cnt = 0;
+	 $valuesub = explode("&nbsp;",$rsskey);
+	  global $wpdb;
+	  $rssschedule 	= $valuesub[0];
+	  $feedstatus 	= $valuesub[1];
+	  $blogdir 		= $valuesub[2];
+	  $rssfeed 		= $rssvalue;
+	 // echo $rssschedule."========".$blogdir."========".$rssfeed;
+	 // echo "<br>";
+     if($blogdir!=""){
+		date_default_timezone_set('America/Los_Angeles');
+		$datetime 		= date("F d, H.i",time());
+	    $starttime 		= $rssschedule;
+		$endtime 		= round(microtime(true) * 1000);
+		$duration 		= $endtime-$starttime;
+		$filestoredmsc 	= date("H:i",$duration);
+		
+		$filestoredmsc = "";
+		$datetime  = "";
+
+		//=========Get Blog Id==============//		
+		$blgmsc = 	microtime(true);
+		global $wpdb;
+		$rsBlog = $wpdb->get_results('SELECT blog_id,path FROM wp_blogs where blog_id > 1 and path ="/'.$blogdir.'/"');
+		$blogid = $rsBlog[0]->blog_id;	
+		$blgmsc=microtime(true)-$blgmsc;
+		//=========Get Blog Id==============//
+		if($blogid!=0){
+			$logtext1  = number_format($blgmsc,6)."\t";
+			
+			$blgmsc = 	"";
+			$msc 	=	microtime(true);
+			
+		    //===========Update RSS Feed Publish Date===========//
+		    $options_query 	= "SELECT option_value
+							  FROM wp_".$blogid."_options
+							  WHERE option_name='".basename($rssfeed)."'";
+			$rsFeedSchedule = 	$wpdb->get_results($options_query);
+			$feedschedule 	=   $rsFeedSchedule[0]->option_value;
+
+			if( empty($feedschedule) || $rssschedule > $feedschedule )
+			{	
+				$datetime 		= 	date("F d, H.i",time());
+				$starttime 		=	$rssschedule;
+				$endtime 		= 	round(microtime(true) * 1000);
+				$duration 		= 	$endtime-$starttime;
+				$filestoredmsc 	= 	date("H:i",$duration);
+				$filelogtext1  	=  	$datetime."\t\t".$filestoredmsc."\t\t";
+
+				file_put_contents(dirname(__FILE__)."/rsslogtext.txt",print_r($filelogtext1,true),FILE_APPEND);
+			
+				file_put_contents(dirname(__FILE__)."/rsslogtext.txt",print_r($logtext1,true),FILE_APPEND);		 
+			$options_query1 = "SELECT option_value
+							  FROM wp_".$blogid."_options
+							  WHERE option_name='siteurl'";
+			$rsSiteURL = $wpdb->get_results($options_query1);
+            $siteurl = $rsSiteURL[0]->option_value;	
+			
+			$rsLinks = $wpdb->get_results("SELECT * FROM wp_".$blogid."_links WHERE link_visible ='Y' AND link_rss='".$rssfeed."'");	
+			//if(!empty($rsLinks)){
+			//$rssfeed		= 'http://arnstad.scanmine.com/go/pub/venstre_abid_raja/xml_rss/abid_raja_no.rss';
+			$doc 			=	new DOMDocument();
+			$doc->load($rssfeed);
+
+			$cattitle 		= $doc->getElementsByTagName('title')->item(0)->nodeValue;
+			$pubdate 		= $doc->getElementsByTagName('pubDate')->item(0)->nodeValue;
+			$rsfeedstatus 	= explode(":",$feedstatus);			
+			//echo "<pre>";
+			//print_r($rsfeedstatus);
+			$counter_feed_status = 0;		 
+			foreach ($doc->getElementsByTagName('item') as $node){
+			/*********************************************************************************************************************/
+				$description 	=	preg_replace('~>\s+<~m', '><', $node->getElementsByTagName('description')->item(0)->nodeValue);  
+				$description 	= 	trim($description);
+				$chart_count	=	0;
+				
+				foreach ($node->getElementsByTagName('chart') as $chart){				
+				
+				$id		 		=	$node->getElementsByTagName('chart')->item($chart_count)->getAttribute('id');
+				$title	 		=	$node->getElementsByTagName('chart')->item($chart_count)->getAttribute('title');
+				$type	 		=	$node->getElementsByTagName('chart')->item($chart_count)->getAttribute('type');
+				
+					foreach($chart->getElementsByTagName('design') as $design){
+	
+						$width		=	$design->getElementsByTagName('width')->item(0)->nodeValue;
+						$height		=	$design->getElementsByTagName('height')->item(0)->nodeValue;
+						
+					}
+					foreach($chart->getElementsByTagName('col') as $innercol){
+				
+						$string = str_replace('-', '', $innercol->getElementsByTagName('name')->item(0)->nodeValue); // Replaces all spaces with hyphens.
+						$string = str_replace(' ', '', $string); // Replaces all spaces with hyphens.
+					   	$col	= preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+					   
+						$col_name[]			=	strtolower($col);
+						$col_colour[]		=	$innercol->getElementsByTagName('name')->item(0)->getAttribute('color');
+						
+					}
+					foreach($chart->getElementsByTagName('row') as $innerrow){
+				
+						$row_length 	=	$innerrow->childNodes->length;
+				
+						for($i = 0; $i < $row_length;$i++){
+							if($i == 0)
+							$row_name[] 		=	$innerrow->getElementsByTagName('name')->item($i)->nodeValue;
+						}	
+						
+					$row_length_value 	=	$row_length-1;
+				
+						for($i = 0; $i < $row_length_value;$i++){
+							$row_value[$i][]	=	$innerrow->getElementsByTagName('value')->item($i)->nodeValue;
+						}
+					}
+					//print_r($row_name);
+					//	print_r($row_value);
+				
+					$max	=	sizeof($row_name);
+					$last 	=	$max-1; 
+					for($i = 0; $i < $max;$i++)
+					{
+						$name .= $row_name[$i];
+						if($i != $last)
+							$name .= ',';
+					}	
+					
+					foreach($row_value as $arr) {
+						 $out[] .= implode(",", $arr);
+					}
+					
+					$max_col	=	sizeof($col_name);
+					$last_col	=	$max_col-1; 
+					for($i = 0; $i < $max_col;$i++)
+					{
+						if($i == 0 )
+							$keys .= 'name,';
+						
+						$keys .= $col_name[$i];
+						if($i != $last_col)
+							$keys .= ',';
+					}
+					//print_r($out);
+					//exit;
+					$shortcode 		=	"[charts ";
+					/*$last 			=	$row_length_value-1;
+					for($i = 0; $i < $row_length_value;$i++){
+					
+						$shortcode .= 	"values_".$i;
+						if($i != $last)
+						$shortcode .= 	",";
+						else
+						$shortcode .= 	"' ";
+					}*/
+					$shortcode 		.= 	" keys='".$keys."'";
+					$shortcode 		.= 	' id="'.$id.'"';
+					$shortcode 		.= 	' style="'.$width.'|'.$height.'"';
+					$shortcode 		.= 	' title="'.$title.'"';
+					$shortcode 		.=	' type="'.$type.'"';
+					//$shortcode 		.=	' col_name="'.$col_name.'"';
+					//$shortcode 		.=	' col_colour="'.$col_colour.'"';
+					$shortcode 		.=	' name="'.$name.'" ';
+					
+					for($i = 0; $i < $row_length_value;$i++){
+					
+						//$shortcode  .= ' values_'.$i.'="'.$out[$i].'"' ;
+						$shortcode  .=  $col_name[$i].'="'.$out[$i].'" ' ;
+					}
+					
+					$shortcode 		.=	']';
+					
+					$find			=	'<div id="'.$id.'"></div>';
+					$replace 		= 	$shortcode.' '.$find;
+					
+					$description 	= str_replace($find,$replace,$description);
+					$row_name 		= '';
+					$name    		= '';
+					$col_name		= '';
+					$keys			= '';
+					$col			= '';
+					$out			= '';
+					$row_value		= '';
+					$chart_count++;
+				}
+				//[charts keys= 'articles,values' articles=" Trine Skei Grande,Ola Elvestuen,Sveinung Rotevatn,Terje Breivik,Abid Raja,Iselin Nybø,Julie Andersland,Guri Melby,Trine Noodt,Odd Einar Dørum" values="41,21,19,15,15,10,5,3,2,2" ]
+				// $description;
+
+				/*********************************************************************************************************************/
+			
+				$smblock = $node->getElementsByTagName('block')->item(0)->nodeValue;
+				$smwidget = $node->getElementsByTagName('widget')->item(0)->nodeValue;
+				
+			 if(!empty($smwidget) && empty($smblock)){
+			 
+				global $wpdb;
+				$parts			=	explode('/',$smwidget);
+				//$description 	=   preg_replace('~>\s+<~m', '><', $node->getElementsByTagName('description')->item(0)->nodeValue);  
+				//$description 	= 	addslashes(trim($description));
+				$widget_title	=	$node->getElementsByTagName('title')->item(0)->nodeValue;
+				//$widget_title	=	$parts[0];	
+				$tosidebar		=   $parts[1];
+				
+				$fromarray 		= 	array("title"=>$widget_title,"text"=>$description,"filter"=>'');
+				$option_names_1 = $wpdb->get_results("SELECT option_name,option_value FROM wp_".$blogid."_options WHERE option_name='widget_text'");
+
+				$widget_copy_to = unserialize($option_names_1[0]->option_value);						 
+					
+					foreach($widget_copy_to as $to_key=>$to_value){
+						if(in_array($widget_title,$to_value)){
+							//$toarray 		= array("title"=>$fromarray["title"],"text"=>$fromarray["text"],"filter"=>$fromarray["filter"]);	
+							$tokey 			= $to_key;
+							$flag_exists 	= "Yes";
+							break;
+						} 	
+					}
+					$multiwidget = 1;
+
+					if($flag_exists=="Yes"){
+						unset($widget_copy_to[$tokey]);
+					}
+						
+					$widget_copy_to[] = $fromarray;
+					$widget_copy_to['_multiwidget'] = $multiwidget;
+					
+					//print_r($widget_copy_to);
+					$widget 	= serialize($widget_copy_to);
+					$query 		= 'UPDATE wp_'.$blogid.'_options SET option_value="'.addslashes($widget).'" WHERE option_name="widget_text"';
+					//if($wpdb->query($query)){ echo 'widget';	}
+					$wpdb->query($query);
+					
+					$option_names_sidebars1 = $wpdb->get_results("SELECT option_name,option_value FROM wp_".$blogid."_options WHERE option_name LIKE 'sidebars_%'");
+					$sidebar_copy_to = unserialize($option_names_sidebars1[0]->option_value);
+					
+				   if($flag_exists=="Yes"){
+						foreach($sidebar_copy_to[$tosidebar] as $keyto=>$valueto){
+							 if(strstr($valueto,"text-".$tokey)){
+								$keytoremove = $keyto;
+								break;
+							 }
+						}
+						unset($sidebar_copy_to[$tosidebar][$keytoremove]);
+					}
+
+					$position 			=  array_search("text-".$fromkey,$sidebar_copy_from[$fromsidebar]);
+									
+					unset($sidebar_copy_to[$tosidebar]['text']);
+					
+					$tosidebar_keys 	= end(array_keys($widget_copy_to));
+					
+					array_splice($sidebar_copy_to[$tosidebar],$position,0,"text-".$tosidebar_keys);
+					
+					$sidebar_copy_to[$tosidebar]['text']	=	"";
+					
+					$sidebar_copy 		= serialize($sidebar_copy_to);
+					
+					$sidebar_query = 'UPDATE wp_'.$blogid.'_options SET option_value="'.addslashes($sidebar_copy).'" WHERE option_name="sidebars_widgets"';
+					
+					//if($wpdb->query($sidebar_query)){	echo'sidebar';	}
+					$wpdb->query($sidebar_query);
+			}else{
+			//echo'else';
+				//echo $counter_feed_status;
+				$actionstatus = $rsfeedstatus[$counter_feed_status];
+				//echo "<br>";
+				 $enclosurelink = $node->getElementsByTagName('enclosure');
+				//$URL = $node->getElementsByTagName('enclosure')->item(0) ? $node->getElementsByTagName('enclosure')->item(0)->getAttribute('url') : '';
+				 if($enclosurelink->item(0)!=""){
+					$URL = $enclosurelink->item(0)->getAttribute('url');
+					$imagetype = $enclosurelink->item(0)->getAttribute('type');
+				}else{
+					$URL = "";
+					$imagetype = "";
+				}
+
+				$itemRSS = array( 
+					'title' 			=> $node->getElementsByTagName('title')->item(0)->nodeValue,
+					'smblock' 			=> $node->getElementsByTagName('block')->item(0)->nodeValue,
+					'smwidget' 			=> $node->getElementsByTagName('widget')->item(0)->nodeValue,
+					'enclosure' 		=> $URL,
+					'sourcelink' 		=> $node->getElementsByTagName('link')->item(0)->nodeValue,
+					'post_mimie_type' 	=> $imagetype,
+					'description' 		=> $description,
+					'pubDate' 			=> $node->getElementsByTagName('pubDate')->item(0)->nodeValue
+			   	);
+
+			   // echo $itemRSS['title']."==";
+			   // echo $URL;
+			  $post_mimie_type = $itemRSS['post_mimie_type'];
+			  //echo "<br/>";
+			  $post_title 	= preg_replace('/\s+/',' ',trim($itemRSS['title']));
+			  $post_name 	= sanitize_title($post_title);
+			  $smblock 		= $itemRSS['smblock'];
+			  $smwidget 	= $itemRSS['smwidget'];
+			 
+			
+			  if(strstr($smblock,"featured1")){
+				$featured = $smblock;
+			  }
+
+			  $enclosure 	= $itemRSS['enclosure'];
+			  $sourcelink 	= $itemRSS['sourcelink'];
+			  // echo "<br>";
+			  
+			  $post_date 	= date("Y-m-d H:i:s",strtotime($itemRSS['pubDate']));
+			  //$description = str_replace(array("\n","\r\n"),'',$itemRSS['description']);
+			  //$description = preg_replace('~>\s+<~m', '><', $itemRSS['description']);  
+			  
+			  $description 	= trim($description);
+			  
+			  //file_put_contents(dirname(__FILE__)."/desc.txt",str_replace(array("\n","\r\n"),'',$description)."\n\n",FILE_APPEND);
+
+			  $excerpt 			= 	$description;
+			  $SQLPOSTAUTHOR 	= 	"SELECT ID FROM wp_users WHERE user_login='rssfeeds'";
+			  $rsPostAuthor 	= 	$wpdb->get_results( $SQLPOSTAUTHOR );
+			  $post_author 		= 	$rsPostAuthor[0]->ID; 
+
+			  //===========Add/Update Terms===========//
+			  /*****************************Check and insert into database if necessary********************************/
+				
+				$r_terms = $wpdb->get_results("SELECT * FROM wp_".$blogid."_terms WHERE name = '".addslashes($cattitle)."'");	
+				//echo "<br>";
+				if(count($r_terms) == 0)
+				{
+					$insert_term_query = 'INSERT INTO wp_'.$blogid.'_terms (`name`,`slug`) VALUES("'.mysql_real_escape_string($cattitle).'","'.strtolower(str_replace(' ','-',mysql_real_escape_string($cattitle))).'")';			
+					$wpdb->query($insert_term_query); 
+					$ID_t = mysql_insert_id();
+				
+					$terms_tax_query = $wpdb->get_results("SELECT term_taxonomy_id FROM wp_".$blogid."_term_taxonomy WHERE term_id='".$termsid."' AND taxonomy='category'");
+					if(count($terms_tax_query) == 0)
+					{
+						$insert_term_query = "INSERT INTO wp_".$blogid."_term_taxonomy(`term_id`,`taxonomy`) VALUES('".$ID_t."','category')";			
+						$wpdb->query($insert_term_query); 
+						$ID_t = mysql_insert_id();
+					}
+				}
+
+				/*******************************************************************************************/
+			  //==Search Terms Exists==================//
+			   $rsTerms = $wpdb->get_results("SELECT * FROM wp_".$blogid."_terms WHERE name = '".addslashes($cattitle)."'");	  
+				//$rsTerms[0]->name;
+				//==Search Terms Exists==================//	
+				 
+				if(!empty($rsTerms)){
+					$termsid = $rsTerms[0]->term_id;
+					if($termsid!=0){
+						$termstaxquery = "SELECT term_taxonomy_id FROM wp_".$blogid."_term_taxonomy WHERE term_id='".$termsid."' AND taxonomy='category'";
+						$rsTermsTaxonomy = $wpdb->get_results($termstaxquery);
+						$term_taxonomy_id = $rsTermsTaxonomy[0]->term_taxonomy_id;
+					}
+				
+				//===========Add/Update Posts===========//
+				//$rn=rand(5, 15);
+				 if($term_taxonomy_id != 0 ){
+
+					$SQL_POSTS = "SELECT wp_".$blogid."_posts.ID,wp_".$blogid."_posts.post_title
+								  FROM wp_".$blogid."_posts
+								  LEFT JOIN wp_".$blogid."_term_relationships
+								  ON wp_".$blogid."_posts.ID=wp_".$blogid."_term_relationships.object_id
+								  WHERE wp_".$blogid."_posts.post_name LIKE '%".$post_name."%'
+								  AND wp_".$blogid."_term_relationships.term_taxonomy_id='".$term_taxonomy_id."'
+								  AND wp_".$blogid."_posts.post_type='post'";
+					$rsPosts = $wpdb->get_results($SQL_POSTS);
+					//file_put_contents(dirname(__FILE__)."/tlog.txt","\n".$rn."-----".$SQL_POSTS."\n".print_r($rsPosts)."\n\n",FILE_APPEND);
+				}
+				//=======If <item> has more tags after the the <sm:block> tag==//
+			
+				
+				if(empty($rsPosts[0]->post_title) && (!empty($description) || !empty($enclosure)) && $actionstatus == "*"){
+					//=====Check post name exists===//		
+					$SQLPOSTSLUG 	= "SELECT post_name FROM wp_".$blogid."_posts WHERE post_name LIKE '%".$post_name."%' ORDER BY ID DESC LIMIT 1";
+					$rsPostSlug 	= $wpdb->get_results($SQLPOSTSLUG);
+
+					if(!empty($rsPostSlug)){
+						$post_slug 		= explode("-",$rsPostSlug[0]->post_name); 
+						$lastelement 	= $post_slug[count($post_slug)-1];
+
+						if(is_numeric($lastelement)){
+							$increaseslug 	= 	$lastelement+1;
+							$postslug 		= 	$post_name."-".$increaseslug;
+						}else{
+							$postslug 		= 	$post_name."-2";
+						}
+					}else{
+						$postslug = $post_name;
+					}
+					//=====Check post name exists===//					
+					$insert_post_query = 'INSERT INTO wp_'.$blogid.'_posts (post_author,post_date,post_date_gmt ,post_content, post_title, post_excerpt, post_status,comment_status,ping_status ,post_name,post_modified,post_modified_gmt,post_type) VALUES("'.$post_author.'","'.$post_date.'","'.$post_date.'","'.addslashes($description).'","'.addslashes($post_title).'","'.addslashes($excerpt).'","publish","closed","closed","'.$postslug.'","'.$post_date.'","'.$post_date.'","post")';
+					//file_put_contents(dirname(__FILE__)."/query.log","216 => ".$insert_post_query."\n\n",FILE_APPEND);
+					$wpdb->query($insert_post_query); 
+					$ID = mysql_insert_id();					//file_put_contents(dirname(__FILE__)."/tlog.txt","\n".$rn."-----".$insert_post_query."\n".print_r($ID)."\n\n",FILE_APPEND);
+					if($ID!=0){
+						//==UPDATE GUID==//
+						$guid = $siteurl."?p=".$ID;
+						$update_post_query = "UPDATE wp_".$blogid."_posts SET guid='".$guid."' WHERE ID='".$ID."'";
+						$wpdb->query($update_post_query); 
+						//==UPDATE GUID==//
+						//===========Add/Update Postmeta===========//
+						//===========Add Image======================//
+						$postmetaarray = array();
+						if(!empty($enclosure)){
+							$source = $enclosure;
+							$destination = ABSPATH."wp-content/uploads/sites/".$blogid."/".basename($enclosure)."";
+							if(@copy($source,$destination)){
+								$postmetaarray["enclosure"] = $enclosure;
+								//==Insert Image===//
+								$imageurlguid = ABSPATH."wp-content/uploads/sites/".$blogid."/".basename($enclosure)."";
+								$posttitle = preg_replace('/\.[^.]+$/', '', basename($enclosure));
+								$postname = sanitize_title($posttitle);
+								$insert_post_image_query = 'INSERT INTO wp_'.$blogid.'_posts (post_author,post_date,post_date_gmt ,post_title,post_status,comment_status,ping_status,post_name,post_modified,post_modified_gmt,post_parent,guid,post_type,post_mime_type) VALUES("'.$post_author.'","'.$post_date.'","'.$post_date.'","'.$posttitle.'","inherit","closed","open","'.$postname.'","'.$post_date.'","'.$post_date.'","'.$ID.'","'.$imageurlguid.'","attachment","'.$post_mimie_type.'")';
+								$wpdb->query($insert_post_image_query); 
+								$thumbnailid = mysql_insert_id();
+								//==Insert Image===//
+								$postmetaarray["_thumbnail_id"] = $thumbnailid;
+							}
+						}
+						//===========Add Image======================//
+						$postmetaarray["sm:block"] = $smblock;
+						if(!empty($sourcelink)){
+							$postmetaarray["syndication_permalink"] = $sourcelink;
+						 }
+						//echo "<pre>";
+						//print_r($postmetaarray);
+
+						foreach($postmetaarray as $key=>$value){
+						$querypostmeta = 'INSERT INTO wp_'.$blogid.'_postmeta(post_id,meta_key,meta_value) VALUES("'.$ID.'","'.$key.'","'.$value.'")';
+						$wpdb->query($querypostmeta);
+						}
+						if(!empty($enclosure) && $thumbnailid != 0 ){
+							$querypostmeta1 = 'INSERT INTO wp_'.$blogid.'_postmeta(post_id,meta_key,meta_value) VALUES("'.$thumbnailid.'","_wp_attached_file","'.basename($enclosure).'")';
+							$wpdb->query($querypostmeta1);
+						}
+							
+						//===========Add/Update Postmeta===========//
+						//===========Add/Update Termtaxonomyrelationships===========//
+						$insertquerytermrels = 'INSERT INTO wp_'.$blogid.'_term_relationships(object_id ,term_taxonomy_id) VALUES("'.$ID.'","'.$term_taxonomy_id.'")';
+						$wpdb->query($insertquerytermrels);
+						//===========Add/Update Termtaxonomyrelationships===========//
+						//====UPDATE COUNTER IN TERMS TAXONOMY==//
+						$updatecounter = "UPDATE wp_".$blogid."_term_taxonomy SET count=count+1 WHERE term_taxonomy_id='".$term_taxonomy_id."'";
+						$wpdb->query($updatecounter);
+						//====UPDATE COUNTER IN TERMS TAXONOMY==//					
+						 //if(strstr($smblock,"featured1")){
+							//$flagthemesoptions = true;
+						 //}
+						
+					}
+					
+				}else{
+						 $ID = $rsPosts[0]->ID;
+						 $post_modified = date('Y-m-d H:i:s');
+						 $postmetaarray = array();						 
+						 $postmetaarray["sm:block"] = $smblock;
+						/*if(!empty($sourcelink)){
+							$postmetaarray["syndication_permalink"] = $sourcelink;
+						 }*/
+						  if(!empty($ID)){
+							//=======If <item> has more tags after the the <sm:block> tag==//
+							if(!empty($description) || !empty($enclosure)){
+							//===Update Posts==//
+							if(strstr($actionstatus,"T")){
+								$update_post_query = 'UPDATE wp_'.$blogid.'_posts SET post_content="'.addslashes($description).'",post_excerpt="'.addslashes($excerpt).'",post_modified="'.$post_modified.'",post_modified_gmt="'.$post_modified.'" WHERE ID="'.$ID .'"';
+								//file_put_contents(dirname(__FILE__)."/query.log","288 => ".$update_post_query."\n\n",FILE_APPEND);
+								$wpdb->query($update_post_query);
+							}
+							//===Update Posts==//
+							//==Update Postmeta==//
+							if(strstr($actionstatus,"B")){
+								foreach($postmetaarray as $key=>$value){
+									$queryupdatepostmeta = 'UPDATE wp_'.$blogid.'_postmeta SET meta_value="'.$value.'" WHERE meta_key="'.$key.'" AND post_id="'.$ID.'"';
+									$wpdb->query($queryupdatepostmeta);
+								}
+							}
+							//==Update Postmeta==//
+							//===Upadate post parent[images]=====//	
+							if(strstr($actionstatus,"P")){
+							$SQLPOSTPARENT = "SELECT * FROM wp_".$blogid."_posts
+											  WHERE post_parent='".$ID."'
+											  AND post_type='attachment'";
+							$rsPostParent = $wpdb->get_results($SQLPOSTPARENT);
+							$IDATTACHMENT = $rsPostParent[0]->ID;	
+							if(!empty($enclosure) && basename($enclosure)!=basename($rsPostParent[0]->guid)){
+								if(!empty($IDATTACHMENT)){									
+									$source = $enclosure;
+									$destination = ABSPATH."wp-content/uploads/sites/".$blogid."/".basename($enclosure)."";
+									if(@copy($source,$destination)){
+									//$postmetaarray["enclosure"] = $enclosure;
+									unset($postmetaarray);
+									//Remove existing Image From Folder
+									@unlink($rsPostParent[0]->guid);
+									
+									//==Update Image===//									
+									$imageurlguid 	= ABSPATH."wp-content/uploads/sites/".$blogid."/".basename($enclosure)."";
+									$posttitle 		= preg_replace('/\.[^.]+$/', '', basename($enclosure));
+									$postname 		= sanitize_title($posttitle);
+
+									$update_post_image_query = 'UPDATE wp_'.$blogid.'_posts SET post_title="'.$posttitle.'" ,post_name="'.$postname.'",post_modified="'.$post_modified.'",post_modified_gmt="'.$post_modified.'",guid="'.$imageurlguid.'",post_mime_type="'.$post_mimie_type.'" WHERE ID="'.$IDATTACHMENT.'"';
+									$wpdb->query($update_post_image_query); 
+									$thumbnailid = $IDATTACHMENT;
+									//==Update Image===//
+									$postmetaarray["enclosure"] 	= $enclosure;
+									$postmetaarray["_thumbnail_id"] = $thumbnailid;
+
+									foreach($postmetaarray as $metakey=>$metavalue){
+										$queryupdatepostmeta = 'UPDATE wp_'.$blogid.'_postmeta SET meta_value="'.$metavalue.'" WHERE meta_key="'.$metakey.'" AND post_id="'.$ID.'"';
+										$wpdb->query($queryupdatepostmeta);
+									}
+									//=======Check Attachment============//
+									$SQLPOSTMETA = "SELECT meta_key 
+
+													FROM wp_".$blogid."_postmeta
+													WHERE meta_key='_wp_attached_file'
+													AND post_id='".$IDATTACHMENT."'";
+
+									$RSWPATTACHMENT = $wpdb->get_results($SQLPOSTMETA);
+									if(!empty($RSWPATTACHMENT)){
+										$querypostmeta1 = 'UPDATE wp_'.$blogid.'_postmeta SET meta_value="'.basename($enclosure).'" WHERE meta_key="_wp_attached_file" AND post_id="'.$IDATTACHMENT.'"';
+									    $wpdb->query($querypostmeta1);										
+									}else{
+										$querypostmeta1 = 'INSERT INTO wp_'.$blogid.'_postmeta(post_id,meta_key,meta_value) VALUES("'.$thumbnailid.'","_wp_attached_file","'.basename($enclosure).'")';
+									    $wpdb->query($querypostmeta1);
+									}
+									//=======Check Attachment============//
+									}
+								}else{
+									$source = $enclosure;
+									$destination = ABSPATH."wp-content/uploads/sites/".$blogid."/".basename($enclosure)."";
+									if(@copy($source,$destination)){									
+									//==Insert Image===//
+									$imageurlguid 	= ABSPATH."wp-content/uploads/sites/".$blogid."/".basename($enclosure)."";
+									$posttitle 		= preg_replace('/\.[^.]+$/', '', basename($enclosure));
+									$postname 		= sanitize_title($posttitle);
+									$insert_post_image_query = 'INSERT INTO wp_'.$blogid.'_posts (post_author,post_date,post_date_gmt ,post_title,post_status,comment_status,ping_status,post_name,post_modified,post_modified_gmt,post_parent,guid,post_type,post_mime_type) VALUES("'.$post_author.'","'.$post_date.'","'.$post_date.'","'.$posttitle.'","inherit","closed","open","'.$postname.'","'.$post_date.'","'.$post_date.'","'.$ID.'","'.$imageurlguid.'","attachment","'.$post_mimie_type.'")';
+									$wpdb->query($insert_post_image_query); 
+									$thumbnailid = mysql_insert_id();
+									//==Insert Image===//
+									$postmetaarray["enclosure"] 		= $enclosure;
+									$postmetaarray["_thumbnail_id"] 	= $thumbnailid;
+									foreach($postmetaarray as $key=>$value){
+										$SQLPOSTMETAEXISTS = "SELECT meta_key 
+													FROM wp_".$blogid."_postmeta
+													WHERE meta_key='".$key."'
+													AND post_id='".$ID."'";
+										$rsPostMetaExists = $wpdb->get_results($SQLPOSTMETAEXISTS);
+										if(empty($rsPostMetaExists)){
+											$querypostmeta = 'INSERT INTO wp_'.$blogid.'_postmeta(post_id,meta_key,meta_value) VALUES("'.$ID.'","'.$key.'","'.$value.'")';
+											$wpdb->query($querypostmeta);
+										}else{
+											$querypostmeta = 'UPDATE wp_'.$blogid.'_postmeta SET meta_value="'.$value.'" WHERE meta_key="'.$key.'" AND post_id="'.$ID.'"';
+											$wpdb->query($querypostmeta);
+										}
+									}
+									if($thumbnailid!=0){
+										$querypostmeta1 = 'INSERT INTO wp_'.$blogid.'_postmeta(post_id,meta_key,meta_value) VALUES("'.$thumbnailid.'","_wp_attached_file","'.basename($enclosure).'")';
+										$wpdb->query($querypostmeta1);
+									}
+									}
+								}	
+							}else{
+								//==Delete Posts==//
+								if(!empty($IDATTACHMENT)){														
+									$postdeletemetaquery = "DELETE FROM wp_".$blogid."_postmeta WHERE post_id='".$ID."' AND meta_key='_thumbnail_id'";
+									$wpdb->query($postdeletemetaquery);
+									
+									$postdeletemetaquery1 = "DELETE FROM wp_".$blogid."_postmeta WHERE post_id='".$IDATTACHMENT."' AND meta_key='_wp_attached_file'";
+									$wpdb->query($postdeletemetaquery1);
+									
+									@unlink($rsPostParent[0]->guid);	
+									$postdeletequery = "DELETE FROM wp_".$blogid."_posts WHERE ID='".$IDATTACHMENT."'";
+									$wpdb->query($postdeletequery);								
+									
+								}
+
+								//==Delete Posts==//
+							}
+							}
+							 
+							//===Upadate post parent[images]=====//
+							}else{
+							//========Update sm:block========//
+								if(strstr($actionstatus,"B")){
+									$querypostsmblock = 'UPDATE wp_'.$blogid.'_postmeta SET meta_value="'.$smblock.'" WHERE meta_key="sm:block" AND post_id="'.$ID.'"';
+									$wpdb->query($querypostsmblock);
+								}
+							//========Update sm:block========//	
+							}	
+						 }
+					} 
+				}// widgetelse	
+					//=======Link Updated=======//
+					 $updatelinks = "UPDATE wp_".$blogid."_links SET link_updated='".date("Y-m-d H:i:s")."' WHERE link_rss='".$rssfeed."'";
+					 $wpdb->query($updatelinks);
+					 //=====Link Updated=========//	
+				//===========Add/Update Posts===========//	
+				} 
+				$counter_feed_status++;		
+			}
+			$counter_feed_status = ""; 
+			//=====Update Options Theme Fetaured Slider==//
+			if(strstr($featured,"featured1")){
+				$options_query2 = "SELECT option_value
+								   FROM wp_".$blogid."_options
+								   WHERE option_name='current_theme'";
+				$rscurrthemes = $wpdb->get_results($options_query2);
+				$current_theme = $rscurrthemes[0]->option_value;
+				if($current_theme=="advanced newspaper"){
+					$theme_option = "advancednewspaper";
+					$options_query2 = "SELECT option_value
+									   FROM wp_".$blogid."_options
+									   WHERE option_name='".$theme_option."'";
+					$rscurrthemes = $wpdb->get_results($options_query2);
+					$advancenewspaper = unserialize($rscurrthemes[0]->option_value);
+					if($advancenewspaper["of_an_nrfea"] == 0){
+						$advancenewspaper_sub = array("of_an_nrfea"=>6);
+						$advancenewspaper_array1 = array_merge($advancenewspaper,$advancenewspaper_sub);
+						$advancenewspaper_array = serialize($advancenewspaper_array1);
+						global $wpdb;
+						$options_query = 'UPDATE wp_'.$blogid.'_options SET option_value="'.addslashes($advancenewspaper_array).'" WHERE option_name="advancednewspaper"';
+						$wpdb->query($options_query);
+				    }
+				}
+					$flagthemesoptions = false;					
+			}
+				//=====Update Options Theme Fetaured Slider==//
+			//==Updateoptions==//
+				if(empty($feedschedule)){
+				   $optioninsert = 'INSERT INTO wp_'.$blogid.'_options (option_name,option_value) VALUES ("'.basename($rssfeed).'","'.$rssschedule.'")';
+				   $wpdb->query($optioninsert);
+				}else{
+					$optionupdate = 'UPDATE wp_'.$blogid.'_options SET option_value="'.$rssschedule.'" WHERE option_name="'.basename($rssfeed).'"';
+					$wpdb->query($optionupdate);
+				}
+				//==Updateoptions==//	
+			//===========Update RSS Feed Publish Date===========//
+			//sleep(10);
+			$msc=microtime(true)-$msc;
+			$logtext  = "".number_format($msc,4)."\t\t".$feedstatus."\t".$blogdir."\t\t".basename($rssfeed).PHP_EOL;
+			file_put_contents(dirname(__FILE__)."/rsslogtext.txt",print_r($logtext,true),FILE_APPEND);
+			$msc = "";
+			echo "<u>".$rssfeed."</u> Updated";
+			echo "<br>";			
+			sleep(5);
+			 //}
+			}else{
+				//echo "<u>".$rssfeed."</u> Already Updated";
+				//echo "<br>";
+				//echo $logtext  = "-\t\t".$blogdir."\t\t <!--test--> ".basename($rssfeed).PHP_EOL;
+				//echo "<br>";
+				//file_put_contents(dirname(__FILE__)."/rsslogtext.txt",print_r($logtext,true),FILE_APPEND);
+			}
+		}else{
+			$logtext1  = "0\t-\t\t-\t".$blogdir."\t\t".basename($rssfeed).PHP_EOL;
+			// file_put_contents(dirname(__FILE__)."/rsslogtext.txt",print_r($logtext1,true),FILE_APPEND);
+			$blgmsc = "";
+		}
+	 }  
+  } 
+ }
+ exit;  
+}
+?>

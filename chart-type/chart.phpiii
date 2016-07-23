@@ -1,0 +1,252 @@
+<?php
+/*
+Plugin Name: Chart Type
+Plugin URI: 
+Description: This plugin allow Admin to Select Chart in widget of there multiple Blogs.
+Version: 0.1
+Author: G0947
+Author URI:
+License:
+*/
+// $blog_title = get_bloginfo("blogname");
+// $blog_name = str_replace("http://iris.scanmine.com/","",$blog_title);
+
+// require("/var/www/html/".$blog_name."/wp-load.php");
+
+function test_chart($atts){
+
+    
+    $catID          =  get_the_category();
+    $name_cat       =  $catID[0]->slug;
+    $get_cat_name   =  explode('_',$atts);
+    $ref_cat        =  $get_cat_name[0];
+
+    $pattern = array("'é'", "'è'", "'ë'", "'ê'", "'É'", "'È'", "'Ë'", "'Ê'", "'á'", "'à'", "'ä'", "'â'", "'å'", "'Á'", "'À'", "'Ä'", "'Â'", "'Å'", "'ó'", "'ò'", "'ö'", "'ô'", "'Ó'", "'Ò'", "'Ö'", "'Ô'", "'í'", "'ì'", "'ï'", "'î'", "'Í'", "'Ì'", "'Ï'", "'Î'", "'ú'", "'ù'", "'ü'", "'û'", "'Ú'", "'Ù'", "'Ü'", "'Û'", "'ý'", "'ÿ'", "'Ý'", "'ø'", "'Ø'", "'œ'", "'Œ'", "'Æ'", "'ç'", "'Ç'");
+
+    $replace = array('e', 'e', 'e', 'e', 'E', 'E', 'E', 'E', 'a', 'a', 'a', 'a', 'a', 'A', 'A', 'A', 'A', 'A', 'o', 'o', 'o', 'o', 'O', 'O', 'O', 'O', 'i', 'i', 'i', 'I', 'I', 'I', 'I', 'I', 'u', 'u', 'u', 'u', 'U', 'U', 'U', 'U', 'y', 'y', 'Y', 'o', 'O', 'a', 'A', 'A', 'c', 'C'); 
+
+    $ref_cat = preg_replace($pattern, $replace, $ref_cat);
+
+
+    if ($ref_cat == "siste") {
+        $ref_cat   =   $get_cat_name[0]."-".$get_cat_name[1];
+    }/*elseif ($ref_cat == "drømmetyding") {
+        $ref_cat    = "drommetyding";
+    }*/
+
+    if( $name_cat !==  $ref_cat){
+        return;
+    }
+     
+    $blog_title     =   get_bloginfo("siteurl");
+    $blog_name      =   str_replace("http://iris.scanmine.com/","",$blog_title);
+    $chart_type     =   "/var/www/html/go/pub/".$blog_name."/".$atts;
+     
+    $doc            =   new DOMDocument();
+    
+    if( empty( $chart_type) ){
+        //echo "Blog Rss Feed Empty";
+    }else{
+        $doc->load($chart_type);
+    }
+    
+    $chart_values   =   array();
+
+    $col            =   $doc->getElementsByTagName('col')->item(0)->nodeValue;
+
+    $chart          =   $doc->getElementsByTagName('chart');
+    $charttype      =   $chart->item(0)->getAttribute('type');
+    $charttitle     =   $chart->item(0)->getAttribute('title');
+    $chartdes       =   $chart->item(0)->getAttribute('descr');
+    $chartid        =   $chart->item(0)->getAttribute('id');
+    $chartname      =   $chart->item(0)->getAttribute('name');
+    $chartvalue     =   $chart->item(0)->getAttribute('value');
+
+    foreach ( $doc->getElementsByTagName('row') as $node ){
+
+        $name       =   $node->getElementsByTagName('name')->item(0)->nodeValue;                
+        $value      =   $node->getElementsByTagName('value')->item(0)->nodeValue;    
+        
+        if($chartname == "date" && $charttype != "BarChart" ){
+
+            $chart_values[] = "[".$name.", ".$value."]";
+
+        }else if($charttype == "BarChart"){
+            
+            $chart_values[] = "['".$value."', ".$name."]";
+
+        }else{
+
+            $chart_values[] = "['".$name."', ".$value."]";
+
+        }
+    }
+
+    $chart_str = implode(",", $chart_values);
+
+?>
+
+<style> 
+    .chart-background{ width:100% !important; } 
+</style>
+
+<div class="chart-box">
+    <div class="chart-header"><?php echo $charttitle; ?></div><!-- /HEADER INIT -->
+    
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+
+    google.load('visualization', '1.0', {'packages':['corechart']});
+    google.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        
+        var data = new google.visualization.DataTable();
+        data.addColumn('<?php if($charttype == "BarChart") { echo $chartvalue; } else { echo $chartname; } ?>', '.')
+        data.addColumn('<?php if($charttype == "BarChart") { echo $chartname; } else { echo $chartvalue; } ?>', '<?php echo $col; ?>')
+
+        data.addRows([<?php echo $chart_str; ?>]);
+
+        var options     =   {};
+        /*var options = {
+                axisTitlesPosition: 'out',
+                pieSliceText: 'percentage',
+                chartArea: {
+                    left: "3%",
+                    top: "3%",
+                    height: "100%",
+                    width: "100%"
+                }*/
+                
+                jQuery.ajax({
+                    type: 'POST',
+                    url: 'http://iris.scanmine.com/<?php echo $blog_name; ?>/wp-content/themes/news-pro/timeline.php',
+                    async:false,
+                    success: function(res) {
+
+                        options = JSON.parse(res);
+
+                    }
+                });
+
+
+        
+    var chart = new google.visualization.<?php echo $charttype; ?>(document.getElementById('chart_div<?php echo $chartid; ?>'));
+
+    chart.draw(data, options);
+    //setTimeout(function(){ chart.draw(data, options); }, 4000);
+    };
+
+    jQuery(window).resize(function(){
+
+        drawChart();
+        
+    });
+
+
+    </script>
+
+    <div style="width:100%;">
+        <div class="chart-background" id="chart_div<?php echo $chartid; ?>"></div>
+        <div id="chart_div<?php echo $chartid; ?>_list" style="display: none;">
+            <div class="message"></div>
+        </div>
+    </div>
+
+    <div class="chart-descr"> 
+        <?php 
+            if($chartdes == "null" ) { 
+                echo "";
+            }else{ 
+                echo $chartdes; 
+            } 
+        ?>
+    </div>
+</div>
+
+<?php
+}
+
+class Chartlist extends WP_Widget {
+
+    function __construct() {
+        // Instantiate the parent object
+        $widget_ops = array('classname' => 'chart-list', 'description' => __('Chart List', 'chartlist') );
+        parent::__construct( 'chart-list', __('Chart Type','chartlist'),  $widget_ops);
+        //parent::__construct( true, 'Chart Type' );
+    }
+
+    function widget( $args, $instance ) {
+        
+        extract( $args );
+        $title = $instance['cat'];
+        test_chart($title);
+        
+    }
+
+    function form( $instance ) {
+        
+        if(empty($instance['cat'])){
+
+            $instance['cat'] = "";
+
+        }
+
+       
+        ?>
+        <p>   
+            <label for="<?php echo $this->get_field_id('cat'); ?>"></label>
+            <select class="widefat" id="<?php echo $this->get_field_id('cat'); ?>" name="<?php echo $this->get_field_name('cat'); ?>">
+
+            <?php 
+            $files = file_name();
+
+            foreach ($files as $key=>$value) { ?>
+                <option value="<?php echo $key; ?>" <?php if($key == $instance['cat']) { echo " selected"; } ?>><?php echo $value; ?></option>
+            <?php } ?>
+            </select>
+        </p>
+        <?php
+    }
+}
+function chart_list() {
+    register_widget('Chartlist');
+}
+add_action('widgets_init', 'chart_list');
+
+
+
+function file_name(){
+
+    $blog_title = get_bloginfo("siteurl");
+    $blog_name  = str_replace("http://iris.scanmine.com/","",$blog_title);
+    
+    $dir = "/var/www/html/go/pub/".$blog_name;
+        
+        if ($handle = opendir($dir)) {
+
+            while (false !== ($entry = readdir($handle))) {
+
+                if ($entry != "." && $entry != "..") {
+
+                    if (strpos($entry,'.txt') !== false) {
+                        
+                        $old_entry = explode(".",$entry);
+
+                        $new_entry = explode("_",$old_entry[0]);
+
+                        $new_name = ucfirst($new_entry[0])." ".ucfirst($new_entry[1])." ".ucfirst($new_entry[2])." ".ucfirst($new_entry[3])." ".ucfirst($new_entry[4])." ".ucfirst($new_entry[5])." ".ucfirst($new_entry[6]);
+                
+                        $new_file_name[$entry] = $new_name;
+
+                    }
+                }
+            }
+            
+            closedir($handle);
+
+            return $new_file_name;
+        }
+}
+
+?>

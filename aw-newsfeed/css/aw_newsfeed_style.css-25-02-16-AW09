@@ -1,0 +1,51 @@
+.aw_article_content article.sub_featured{ padding:20px; border-bottom: 1px solid #e3e3e3;}
+.aw_article_content article.sub_featured h2.aw_entry_title{ font-size:20px; line-height:1.2;}
+.aw_article_content article.sub_featured h2.aw_entry_title a{ color: #000;}
+.aw_article_content article.sub_featured h2.aw_entry_title a:hover{ color: #27a3d1;}
+.aw_article_content article.link{ border-bottom:1px solid #e3e3e3; margin-bottom:10px; margin-top: 15px;}
+.aw_article_content article.link h2.aw_entry_title{ font-size:20px; line-height:1.2;}
+.aw_article_content article.link h2.aw_entry_title a{ color: #000;}
+.aw_article_content article.link h2.aw_entry_title a:hover{ color: #27a3d1;}
+.aw_article_content article.featured h2.aw_entry_title{ font-size:20px; line-height:1.2;}
+.aw_article_content article.featured h2.aw_entry_title a{ color: #000;}
+.aw_article_content article.featured h2.aw_entry_title a:hover{ color: #27a3d1;}
+.aw_article_content article.standard h2.aw_entry_title{ font-size:20px; line-height:1.2;}
+.aw_article_content article.standard h2.aw_entry_title a{ color: #000;}
+.aw_article_content article.standard h2.aw_entry_title a:hover{ color: #27a3d1;}
+.aw_article_content article.standard .media_container{ float:left; margin-right:15px;}
+.aw_article_content article.standard .media_container img {width:150px;}
+
+/* Update on 28.08.2015 */
+.aw_article_content .standard .media_container{margin-right:0 !important; height:auto;}
+.aw_article_content .standard .media_container img{margin-right:1px !important;}
+
+
+
+/* Update on 01.09.2015 */
+.aw_treaser .media_container{ float: left; height: auto; max-width:300px; margin-right: 1%; width: 55%; }
+.aw_treaser .post_content{float: left; margin-top: 0px; width: 44%; }
+
+/* .more-link{display: none;}*/
+
+/*@media (max-width: 1160px) {
+
+
+}
+*/
+
+@media (min-width: 601px) and (max-width: 1024px) {
+
+	.aw_treaser .media_container{ width:100%; margin:0 0 15px 0; max-width:none;}
+	.aw_treaser .media_container img{ width:100%;}
+	.aw_treaser .post_content{ margin-top: 0px; width: 100%; }
+
+}
+
+@media (max-width: 480px) {
+
+	.aw_treaser .media_container{ width:100%; margin:0 0 15px 0; max-width:none;}
+	.aw_treaser .media_container img{ width:100%;}
+	.aw_treaser .post_content{ margin-top: 0px; width: 100%; }
+
+}
+.img_set{float:left; max-width:50%; margin: 0 15px 0 0;}

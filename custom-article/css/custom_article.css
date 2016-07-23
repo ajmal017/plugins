@@ -1,0 +1,33 @@
+.custom-editor-div{ background:#000;padding:5px; border-radius:2px 2px 0px 0px; height: 30px;}
+/*.home .custom-editor-div{ display: none; }*/
+.single .custom-editor-div{ display: none; }
+.custom-editor-link{font-size:13px; color:#FFF !important; font-weight:bold; margin-left:15px;}
+.visitor_msg_div{ display:none; background: #951C55;}
+.home .visitor_msg_div{display:none;}
+.single .visitor_msg_div{display:none;}
+.register_msg_div{display: none; background: #951C55; width: 100%;}
+.home .register_msg_div{display:none;}
+.like_btn{ position: absolute; margin: 3px 10px; }
+.share_btn{ position: absolute; margin: 3px 10px; }
+.huge-it-share-buttons h3{ display: none !important; }
+.aw_inner_content .huge-it-share-buttons{display: none;}
+.page .login_text{ margin-top: 0px; }
+.page .register_text{ margin-top: 0px; }
+.link_style{ color: #FFF !important; font-weight: bold; }
+#close_butn{ display: none;}
+.close_btn{ color: #FFF !important; }
+.logout_btn{ color: #FFF !important; font-weight: bold; font-size: 13px !important;}
+#logout_butn{display: none;}
+.page .custom-editor-link{ display: none; }
+
+#custom-editor-div{}
+#custom-editor-div .left-custom-col{float:left;}
+#custom-editor-div .right-custom-col{float:right; margin-right:10px;}
+#custom-editor-div .right-custom-col span{float:left; margin-left:10px;}
+
+@media only screen and (max-width: 800px) {
+.custom-editor-link{ font-size:16px; padding:10px}
+.logout_btn{ font-size: 16px !important; padding:10px}
+.right-custom-col .login_text{ font-size: 16px !important; padding:10px}
+.right-custom-col .register_text{ font-size: 16px !important; padding:10px }
+}

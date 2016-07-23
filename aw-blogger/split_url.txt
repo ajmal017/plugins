@@ -1,0 +1,1 @@
+create http://iris.scanmine.com/aw_config_testing/widget_test_07.xml
