@@ -7,7 +7,7 @@
   Author URI: 
   Version: 3.7.5
   License: GPLv2
-  Copyright 2016 Nitesh Singh
+  Copyright 2016 Deepak Bansal
 */
 
 load_plugin_textdomain('wdm-ultimate-auction', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
