@@ -1,9 +1,4 @@
 <?php
-/**
- * This is the PHP client for Broadstreet
- * @link http://broadstreetads.com
- * @author Broadstreet Ads <labs@broadstreetads.com>
- */
 
 if(!class_exists('Broadstreet')):
 

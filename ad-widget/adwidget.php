@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: Wordpress Ad Widget
-Plugin URI: https://github.com/broadstreetads/wordpress-ad-widget
+Plugin Name:Ad Widget
+Plugin URI: 
 Description: The easiest way to place ads in your Wordpress sidebar. Go to Settings -> Ad Widget
-Version: 2.9.0
-Author: Broadstreet Ads
-Author URI: http://broadstreetads.com
+Version: 1.0.0
+Author: artowrld
+Author URI: 
 */
 
 require_once 'lib/Utility.php';

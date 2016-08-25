@@ -1,14 +1,5 @@
 <?php
 
-/**
- * Generate fixed-width dictionary file
- *
- * @author  Jose Rodriguez <jose.rodriguez@exec.cl>
- * @license GPLv3
- * @link    http://code.google.com/p/cool-php-captcha
- * @package captcha
- *
- */
 
 
 /** Word lengths */
