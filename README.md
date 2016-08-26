@@ -2,45 +2,21 @@
 
 This repo contains the all the custom worpdress plugins.
 
-#Following the details about the Plugins.
+#List of Plugins.
 
 ## Plugin Name: [AW Blogger](https://github.com/dev-artworld/plugins/tree/master/aw-blogger)
-Plugin allow admin to create a new site using the XML configuration file and Template blog.
-plugin setup a new wordpress blog on the server using the different parameters that are defined in the XML file.
-plugin replicates all the setting from the template blog which is selected when creating the blog.
+Plugin allow admin to create a new site using the XML configuration file.
 
-<br />
-### Admin panel interface.
-<br />
+More details [click here](https://github.com/dev-artworld/plugins/tree/master/aw-blogger)
 
-<p align="center">
-  <img src="sample/aw-blogger.png" alt="" width="800"/>
-</p>
 
-<br />
+## Plugin Name: [AW Newsfeed](https://github.com/dev-artworld/plugins/tree/master/aw-newsfeed)
+Plugin allow to show post on the blog page using the postmeta using widgets.
 
-### Sample XML configuration file structure.
-```
-<site>
-	<address>[PathToCreateBlog]</address>
-	<title>[BlogTitle]</title>
-	<description>[Description]</description>
-	<owner>[AdminEmail]</owner>
-	<theme>[Theme]</theme>
-	<feeds>
-		<feed>
-			[XmlFeedUrl]
-		</feed>
-	</feeds>
-	<options>
-		<option>
-			[CustomOptions]
-		</option>
-	</options>
-	<pages>
-		<page>
-			[Pages]
-		</page>
-	</pages>
-</site>
-```
+More details [click here](https://github.com/dev-artworld/plugins/tree/master/aw-newsfeed)
+
+
+## Plugin Name: [AW Addfeed](https://github.com/dev-artworld/plugins/tree/master/aw-addfeed)
+Plugin allow admin to include advertisement into blog in the widgets.
+
+More details [click here](https://github.com/dev-artworld/plugins/tree/master/aw-addfeed)
