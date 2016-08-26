@@ -11,7 +11,7 @@ plugin replicates all the setting from the template blog which is selected when 
 * [Visit any blog directly form list.](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#list-of-all-blogs)
 * [Go directly to any blog's dashboard form list.](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#list-of-all-blogs)
 * [Delete blogs.](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#list-of-all-blogs)
-* [Function to test if XML config file is valid.](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#sample-xml-configuration-file-structure)
+* [Function to test if XML config file is valid.](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#test-xml-config-file)
 
 <br />
 ### Add New Blog Interface
