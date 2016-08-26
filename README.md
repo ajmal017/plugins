@@ -20,3 +20,13 @@ More details [click here](https://github.com/dev-artworld/plugins/tree/master/aw
 Plugin allow admin to include advertisement into blog in the widgets.
 
 More details [click here](https://github.com/dev-artworld/plugins/tree/master/aw-addfeed)
+
+## Plugin Name: [AW Copier](https://github.com/dev-artworld/plugins/tree/master/aw-copier)
+Plugin allow admin to copy individual setting form any blog to multiple blogs.
+
+More details [click here](https://github.com/dev-artworld/plugins/tree/master/aw-copier)
+
+## Plugin Name: [Rss Multi Updater](https://github.com/dev-artworld/plugins/tree/master/rssMultiUpdater)
+Plugin allow admin to update the Rss Feed based content.
+
+More details [click here](https://github.com/dev-artworld/plugins/tree/master/rssMultiUpdater)
