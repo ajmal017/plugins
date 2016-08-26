@@ -22,7 +22,7 @@ plugin replicates all the setting from the template blog which is selected when 
 </p>
 ### Steps to `Add New Blog`
 * `Select Template` from the list.
-* Enter config files' url in the Box.
+* Enter [config file](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#sample-xml-configuration-file-structure) url in the Box.
 * Hit `Add Site`
 
 
