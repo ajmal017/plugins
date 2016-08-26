@@ -6,11 +6,11 @@ plugin setup a new wordpress blog on the server using the different parameters t
 plugin replicates all the setting from the template blog which is selected when creating the blog.
 
 ###Features
-* Create Blog using XML configuration file.
-* List of all the blog created.
-* Visit any blog directly form list.
-* Go directly to any blog's dashboard form list.
-* Delete blogs.
+* [Create Blog using XML configuration file.](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#add-new-blog-interface)
+* [List of all the blog created.](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#list-of-all-blogs)
+* [Visit any blog directly form list.](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#list-of-all-blogs)
+* [Go directly to any blog's dashboard form list.](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#list-of-all-blogs)
+* [Delete blogs.](https://github.com/dev-artworld/plugins/tree/master/aw-blogger#list-of-all-blogs)
 * Function to test if XML config file is valid.
 
 <br />
