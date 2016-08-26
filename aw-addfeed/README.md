@@ -9,7 +9,7 @@ User can include any file in the [Wordpress](https://wordpress.org) page. This p
 <br />
 
 <p align="center">
-  <img src="sample/aw--addfeed.png" alt="80%"/>
+  <img src="sample/aw-addfeed.png" alt="" width="80%" />
 </p>
 
 <br />
