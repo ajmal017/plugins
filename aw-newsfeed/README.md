@@ -9,7 +9,7 @@ plugin allows to include instances of posts in your blogs using Widget. plugin a
 <br />
 
 <p align="center">
-  <img src="sample/aw-newsfeed.png" alt=""/>
+  <img src="sample/aw-newsfeed.png" alt="80%"/>
 </p>
 
 <br />
@@ -17,7 +17,7 @@ plugin allows to include instances of posts in your blogs using Widget. plugin a
 <br />
 
 <p align="center">
-  <img src="sample/aw-newsfeed-settings.png" alt="" width="800"/>
+  <img src="sample/aw-newsfeed-settings.png" alt=""/>
 </p>
 
 
