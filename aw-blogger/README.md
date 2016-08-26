@@ -5,12 +5,29 @@ Plugin allow admin to create a new site using the XML configuration file and Tem
 plugin setup a new wordpress blog on the server using the different parameters that are defined in the XML file.
 plugin replicates all the setting from the template blog which is selected when creating the blog.
 
+###Features
+* Create Blog using XML configuration file.
+* List of all the blog created.
+* Visit any blog directly form list.
+* Go directly to any blog's dashboard form list.
+* Delete blogs.
+* Function to test if XML config file is valid.
+
 <br />
-### Admin panel interface.
+### Add New Blog Interface
 <br />
 
 <p align="center">
   <img src="sample/aw-blogger.png" alt="" width="800"/>
+</p>
+
+<br />
+
+### List of all blogs.
+<br />
+
+<p align="center">
+  <img src="sample/aw-blogger-list.png" alt="" width="800"/>
 </p>
 
 <br />
