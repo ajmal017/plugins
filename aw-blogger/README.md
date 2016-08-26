@@ -37,6 +37,15 @@ plugin replicates all the setting from the template blog which is selected when 
 
 <br />
 
+### Test XML config file.
+<br />
+
+<p align="center">
+  <img src="sample/aw-blogger-test-config.png" alt="" width="800"/>
+</p>
+
+<br />
+
 ### Sample XML configuration file structure.
 ```
 <site>
