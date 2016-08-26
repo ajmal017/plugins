@@ -10,6 +10,8 @@ plugin setup a new wordpress blog on the server using the different parameters t
 plugin replicates all the setting from the template blog which is selected when creating the blog.
 
 <br />
+### Admin panel interface.
+<br />
 
 <p align="center">
   <img src="sample/aw-blogger.png" alt="" width="800"/>
@@ -18,7 +20,8 @@ plugin replicates all the setting from the template blog which is selected when 
 <br />
 
 ### Sample XML configuration file structure.
-```<site>
+```
+<site>
 	<address>[PathToCreateBlog]</address>
 	<title>[BlogTitle]</title>
 	<description>[Description]</description>
@@ -39,6 +42,5 @@ plugin replicates all the setting from the template blog which is selected when 
 			[Pages]
 		</page>
 	</pages>
-</site>```
-
-
+</site>
+```
