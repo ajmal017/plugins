@@ -20,12 +20,11 @@ plugin replicates all the setting from the template blog which is selected when 
 <p align="center">
   <img src="sample/aw-blogger.png" alt="" width="800"/>
 </p>
-<p>
-	### Steps to `Add New Blog`
-	* `Select Template` from the list.
-	* Enter config files' url in the Box.
-	* Hit `Add Site`
-</p>
+### Steps to `Add New Blog`
+* `Select Template` from the list.
+* Enter config files' url in the Box.
+* Hit `Add Site`
+
 
 <br />
 
