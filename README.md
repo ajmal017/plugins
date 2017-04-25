@@ -31,6 +31,6 @@ Plugin allow admin to update the Rss Feed based content.
 
 More details [click here](https://github.com/dev-artworld/plugins/tree/master/rssMultiUpdater)
 
-## Plugin Name: [AW Copier](https://github.com/dev-artworld/plugins/tree/master/aw_bond_management)
+## Plugin Name: [AW Bond Management](https://github.com/dev-artworld/plugins/tree/master/aw_bond_management)
 Description Pending
-More details [click here](https://github.com/dev-artworld/plugins/tree/master/rssMultiUpdater)
+More details [click here](https://github.com/dev-artworld/plugins/tree/master/aw_bond_management)
