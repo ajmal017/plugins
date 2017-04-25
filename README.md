@@ -35,3 +35,8 @@ More details [click here](https://github.com/dev-artworld/plugins/tree/master/rs
 Description Pending
 
 More details [click here](https://github.com/dev-artworld/plugins/tree/master/aw_bond_management)
+
+## Plugin Name: [awMarketingManager](https://github.com/dev-artworld/plugins/tree/master/awMarketingManager)
+Description Pending
+
+More details [click here](https://github.com/dev-artworld/plugins/tree/master/awMarketingManager)
