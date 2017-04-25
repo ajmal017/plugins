@@ -1,0 +1,351 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+class AwEmailNotifications {
+
+    public static  function sendNotificationToWinner($auctionID, $bondID, $winnerID ){
+
+        $subject   = "Notification: BWIC Won";
+        $winner_id      =   $winnerID;
+        $winner_email   =   get_the_author_meta('user_email', $winner_id);
+
+        $list_id        =   $bondID;
+        $bwic_title     =   get_post_meta($auctionID, 'bwic_title', true);
+
+        $type           =   get_post_meta($bondID,"type",true);
+        $orig_rating    =   get_post_meta($bondID,"orig_rating",true);
+        $ticker         =   get_post_meta($bondID,"ticker",true);
+        $c_e            =   get_post_meta($bondID,"c/e",true);
+
+        $winner_msg     = '<table>';
+        $winner_msg    .=   '<thead>';
+        $winner_msg    .=       '<tr>';
+        $winner_msg    .=           '<th colspan="5">';
+        $winner_msg    .=               '<h3>'.$winner_id.', Your '.$bwic_title.' has closed and we wanted to inform you that you won the following bonds.</h3>';
+        $winner_msg    .=           '</th>';
+        $winner_msg    .=       '</tr>';
+        $winner_msg    .=   '</thead>';
+        $winner_msg    .=   '<tbody>';
+        $winner_msg    .=       '<tr>';
+        $winner_msg    .=           '<td>List ID</td>';
+        $winner_msg    .=           '<td>Type</td>';
+        $winner_msg    .=           '<td>Orig Rating</td>';
+        $winner_msg    .=           '<td>Ticker</td>';
+        $winner_msg    .=           '<td>C/E</td>';
+        $winner_msg    .=       '</tr>';
+
+        $winner_msg    .=   '<tr>';
+        $winner_msg    .=       '<td>'.$list_id.'</td>';
+        $winner_msg    .=       '<td>'.$type.'</td>';
+        $winner_msg    .=       '<td>'.$orig_rating.'</td>';
+        $winner_msg    .=       '<td>'.$ticker.'</td>';
+        $winner_msg    .=       '<td>'.$c_e.'</td>';
+        $winner_msg    .=   '</tr>';
+
+        $winner_msg   .= '<tr><td colspan="5"><h3> We will provide you with final trade confirmation and settlement instructions shortly.  Please do not hesitate to contact us if you have any questions or concerns.   Thank you, BEX Markets</h3></td></tr>';
+        $winner_msg    .=   '</tbody>';
+        $winner_msg    .=  '</table>';
+
+        wp_mail($winner_email,$subject,$winner_msg,'Content-type:text/html;charset=iso-8859-1',array());
+
+        echo "<p>Sent Notification To Winner: $winner_email</p>";
+    }
+
+    public static  function sendNotificationToTied( $auctionID, $bondID, $tiedusers ){
+
+        foreach ( $tiedusers as $user_id) {
+
+            $user_email     =   get_the_author_meta('user_email', $user_id);
+            $list_id        =   $bondID;
+            $bwic_title     =   get_post_meta($auctionID, 'bwic_title', true);
+
+            $type           =   get_post_meta($bondID,"type",true);
+            $orig_rating    =   get_post_meta($bondID,"orig_rating",true);
+            $ticker         =   get_post_meta($bondID,"ticker",true);
+            $c_e            =   get_post_meta($bondID,"c/e",true);
+
+            $subject        =   "Notification: BWIC Tied";
+
+            $time           =   get_post_meta($auctionID, 'end_date', true);
+            $stamp          =   date('Y-m-d H:i',strtotime('+15 minutes',$time));
+
+            $bidagain_msg     = '<table>';
+            $bidagain_msg    .=   '<thead>';
+            $bidagain_msg    .=       '<tr>';
+            $bidagain_msg    .=           '<th colspan="5">';
+            $bidagain_msg    .=               '<h3>'.$user_id.', Your '.$bwic_title.' has closed and we wanted to inform you that you were tied for the maximum bid for the following bonds.</h3>';
+            $bidagain_msg    .=           '</th>';
+            $bidagain_msg    .=       '</tr>';
+            $bidagain_msg    .=   '</thead>';
+            $bidagain_msg    .=   '<tbody>';
+            $bidagain_msg    .=       '<tr>';
+            $bidagain_msg    .=           '<td>List ID</td>';
+            $bidagain_msg    .=           '<td>Type</td>';
+            $bidagain_msg    .=           '<td>Orig Rating</td>';
+            $bidagain_msg    .=           '<td>Ticker</td>';
+            $bidagain_msg    .=           '<td>C/E</td>';
+            $bidagain_msg    .=       '</tr>';
+
+            $bidagain_msg    .=   '<tr>';
+            $bidagain_msg    .=       '<td>'.$list_id.'</td>';
+            $bidagain_msg    .=       '<td>'.$type.'</td>';
+            $bidagain_msg    .=       '<td>'.$orig_rating.'</td>';
+            $bidagain_msg    .=       '<td>'.$ticker.'</td>';
+            $bidagain_msg    .=       '<td>'.$c_e.'</td>';
+            $bidagain_msg    .=   '</tr>';
+
+            $bidagain_msg   .= '<tr><td colspan="5"><h3>Please submit your best and final bid by '.$stamp.' at <a href="'.site_url().'/tiedbid/?id='.$user_id.'">Dashboard</a> <br><br>Please do not hesitate to contact us if you have any questions or concerns.   <br><br>Thank you, BEX Markets</h3></td></tr>';
+            $bidagain_msg    .=   '</tbody>';
+            $bidagain_msg    .=  '</table>';
+
+            wp_mail($user_email,$subject,$bidagain_msg,'Content-type:text/html;charset=iso-8859-1',array());
+
+            echo "<p>Sent Notification To User: $user_email</p>";
+
+        }//edn
+    }
+
+
+    public static  function sendNotificationToSeller( $auction ){
+            $seller_id      =   $auction->post_author;
+
+            $seller_email   =   get_the_author_meta('user_email', $seller_id);
+            $bwic_title     =   get_post_meta($auction->ID, 'bwic_title', true);
+            $subject       =    "BWIC ( ".$bwic_title." ) summary.";
+
+            $seller_msg     = '<table>';
+            $seller_msg    .=   '<thead>';
+            $seller_msg    .=       '<tr>';
+            $seller_msg    .=           '<th colspan="5">';
+            $seller_msg    .=               '<h3>'.$bwic_title.' has closed following is summary of bonds. </h3>';
+            $seller_msg    .=           '</th>';
+            $seller_msg    .=       '</tr>';
+            $seller_msg    .=   '</thead>';
+            $seller_msg    .=   '<tbody>';
+            $seller_msg    .=       '<tr>';
+            $seller_msg    .=           '<td>List ID</td>';
+            $seller_msg    .=           '<td>Type</td>';
+            $seller_msg    .=           '<td>Orig Rating</td>';
+            $seller_msg    .=           '<td>Ticker</td>';
+            $seller_msg    .=           '<td>C/E</td>';
+            $seller_msg    .=           '<td>Result</td>';
+            $seller_msg    .=       '</tr>';
+
+            $seller_bonds   =   get_post_meta($auction->ID, '_auction_meta_field_value', true);
+
+            foreach ( $seller_bonds as $bond ) {
+
+                $list_id        =    $bond;
+                $type           =    get_post_meta($bond,"type",true);
+                $orig_rating    =    get_post_meta($bond,"orig_rating",true);
+                $ticker         =    get_post_meta($bond,"ticker",true);
+                $c_e            =    get_post_meta($bond,"c/e",true);
+                $status         =    get_post_meta($bond,"status",true);
+
+                $seller_msg    .=   '<tr>';
+                $seller_msg    .=       '<td>'.$list_id.'</td>';
+                $seller_msg    .=       '<td>'.$type.'</td>';
+                $seller_msg    .=       '<td>'.$orig_rating.'</td>';
+                $seller_msg    .=       '<td>'.$ticker.'</td>';
+                $seller_msg    .=       '<td>'.$c_e.'</td>';
+                $seller_msg    .=       '<td>'.$status.'</td>';
+                $seller_msg    .=   '</tr>';
+            }
+
+            $seller_msg   .= '<tr><td colspan="5"><h3><br><br>Thank you, BEX Markets.</h3></td></tr>';
+            $seller_msg    .=   '</tbody>';
+            $seller_msg    .=  '</table>';
+
+            wp_mail($seller_email,$subject,$seller_msg,'Content-type:text/html;charset=iso-8859-1',array());
+
+            echo "<p>Sent Notification To Seller: $seller_email</p>";
+
+    }
+
+    public static  function sendNotificationToAdmin($auction ){
+
+            $admin_email   =   get_option( 'admin_email' );
+            $bwic_title    =   get_post_meta($auction->ID, 'bwic_title', true);
+
+            $subject       =    "BWIC ( ".$bwic_title." ) summary.";
+
+            $admin_msg     = '<table>';
+            $admin_msg    .=   '<thead>';
+            $admin_msg    .=       '<tr>';
+            $admin_msg    .=           '<th colspan="5">';
+            $admin_msg    .=               '<h3>'.$bwic_title.' has closed following is summary of bonds. </h3>';
+            $admin_msg    .=           '</th>';
+            $admin_msg    .=       '</tr>';
+            $admin_msg    .=   '</thead>';
+            $admin_msg    .=   '<tbody>';
+            $admin_msg    .=       '<tr>';
+            $admin_msg    .=           '<td>List ID</td>';
+            $admin_msg    .=           '<td>Type</td>';
+            $admin_msg    .=           '<td>Orig Rating</td>';
+            $admin_msg    .=           '<td>Ticker</td>';
+            $admin_msg    .=           '<td>C/E</td>';
+            $admin_msg    .=           '<td>Result</td>';
+            $admin_msg    .=       '</tr>';
+
+            $seller_bonds   =   get_post_meta($auction->ID, '_auction_meta_field_value', true);
+
+            foreach ( $seller_bonds as $bond ) {
+
+                $list_id        =    $bond;
+                $type           =    get_post_meta($bond,"type",true);
+                $orig_rating    =    get_post_meta($bond,"orig_rating",true);
+                $ticker         =    get_post_meta($bond,"ticker",true);
+                $c_e            =    get_post_meta($bond,"c/e",true);
+                $status         =    get_post_meta($bond,"status",true);
+
+                $admin_msg    .=   '<tr>';
+                $admin_msg    .=       '<td>'.$list_id.'</td>';
+                $admin_msg    .=       '<td>'.$type.'</td>';
+                $admin_msg    .=       '<td>'.$orig_rating.'</td>';
+                $admin_msg    .=       '<td>'.$ticker.'</td>';
+                $admin_msg    .=       '<td>'.$c_e.'</td>';
+                $admin_msg    .=       '<td>'.$status.'</td>';
+                $admin_msg    .=   '</tr>';
+            }
+
+            $admin_msg   .= '<tr><td colspan="5"><h3><br><br>Thank you, <br/>BEX Markets.</h3></td></tr>';
+            $admin_msg    .=   '</tbody>';
+            $admin_msg    .=  '</table>';
+
+            wp_mail( $admin_email, $subject, $admin_msg,'Content-type:text/html;charset=iso-8859-1',array());
+
+            echo "<p>Sent Notification To admin: $admin_email</p>";
+    }
+
+    public static  function sendNotificationToLosers($auctionID, $bondID, $winnerID, $coverPrice, $bidders ){
+
+        $subject        = "Notification: BWIC Summary";
+        $winner_id      =   $winnerID;
+
+
+        $list_id        =   $bondID;
+        $bwic_title     =   get_post_meta($auctionID, 'bwic_title', true);
+
+        $type           =   get_post_meta($bondID,"type",true);
+        $orig_rating    =   get_post_meta($bondID,"orig_rating",true);
+        $ticker         =   get_post_meta($bondID,"ticker",true);
+        $c_e            =   get_post_meta($bondID,"c/e",true);
+
+
+        foreach ($bidders as $user_id => $value) {
+
+            if( $user_id == $winnerID ){
+                continue;
+            }
+
+            $user_email   =   get_the_author_meta('user_email', $user_id);
+
+            $winner_msg     = '<table>';
+            $winner_msg    .=   '<thead>';
+            $winner_msg    .=       '<tr>';
+            $winner_msg    .=           '<th colspan="5">';
+            $winner_msg    .=               '<h3>'.$user_id.', Your '.$bwic_title.' has closed and we wanted to inform you that you Lost the following bond.</h3>';
+            $winner_msg    .=           '</th>';
+            $winner_msg    .=       '</tr>';
+            $winner_msg    .=   '</thead>';
+            $winner_msg    .=   '<tbody>';
+            $winner_msg    .=       '<tr>';
+            $winner_msg    .=           '<td>List ID</td>';
+            $winner_msg    .=           '<td>Type</td>';
+            $winner_msg    .=           '<td>Orig Rating</td>';
+            $winner_msg    .=           '<td>Ticker</td>';
+            $winner_msg    .=           '<td>C/E</td>';
+            $winner_msg    .=           '<td>Cover Price</td>';
+            $winner_msg    .=       '</tr>';
+
+            $winner_msg    .=   '<tr>';
+            $winner_msg    .=       '<td>'.$list_id.'</td>';
+            $winner_msg    .=       '<td>'.$type.'</td>';
+            $winner_msg    .=       '<td>'.$orig_rating.'</td>';
+            $winner_msg    .=       '<td>'.$ticker.'</td>';
+            $winner_msg    .=       '<td>'.$c_e.'</td>';
+            $winner_msg    .=       '<td>$'.$coverPrice.'</td>';
+            $winner_msg    .=   '</tr>';
+
+            $winner_msg   .= '<tr>
+                                    <td colspan="5">
+                                        <h3> We will provide you with final trade confirmation and settlement instructions shortly.<br>
+                                            Please do not hesitate to contact us if you have any questions or concerns.   <br>
+                                            Thank you, <br>
+                                            BEX Markets
+                                        </h3>
+                                    </td>
+                                </tr>';
+            $winner_msg    .=   '</tbody>';
+            $winner_msg    .=  '</table>';
+
+            wp_mail($user_email, $subject,$winner_msg,'Content-type:text/html;charset=iso-8859-1',array());
+
+            echo "<p>Sent Notification To Loser: $user_email</p>";
+        }
+
+    }
+
+    public static  function sendNotificationSummaryUsers($auctionID, $bondID, $winnerID ){
+
+            $admin_email   =   get_option( 'admin_email' );
+            $bwic_title    =   get_post_meta($auction->ID, 'bwic_title', true);
+
+            $subject       =    "BWIC ( ".$bwic_title." ) summary.";
+
+            $admin_msg     = '<table>';
+            $admin_msg    .=   '<thead>';
+            $admin_msg    .=       '<tr>';
+            $admin_msg    .=           '<th colspan="5">';
+            $admin_msg    .=               '<h3>'.$bwic_title.' has closed following is summary of bonds. </h3>';
+            $admin_msg    .=           '</th>';
+            $admin_msg    .=       '</tr>';
+            $admin_msg    .=   '</thead>';
+            $admin_msg    .=   '<tbody>';
+            $admin_msg    .=       '<tr>';
+            $admin_msg    .=           '<td>List ID</td>';
+            $admin_msg    .=           '<td>Type</td>';
+            $admin_msg    .=           '<td>Orig Rating</td>';
+            $admin_msg    .=           '<td>Ticker</td>';
+            $admin_msg    .=           '<td>C/E</td>';
+            $admin_msg    .=           '<td>Result</td>';
+            $admin_msg    .=       '</tr>';
+
+            $seller_bonds   =   get_post_meta($auction->ID, '_auction_meta_field_value', true);
+
+            foreach ( $seller_bonds as $bond ) {
+
+                $list_id        =    $bond;
+                $type           =    get_post_meta($bond,"type",true);
+                $orig_rating    =    get_post_meta($bond,"orig_rating",true);
+                $ticker         =    get_post_meta($bond,"ticker",true);
+                $c_e            =    get_post_meta($bond,"c/e",true);
+                $status         =    get_post_meta($bond,"status",true);
+
+                $admin_msg    .=   '<tr>';
+                $admin_msg    .=       '<td>'.$list_id.'</td>';
+                $admin_msg    .=       '<td>'.$type.'</td>';
+                $admin_msg    .=       '<td>'.$orig_rating.'</td>';
+                $admin_msg    .=       '<td>'.$ticker.'</td>';
+                $admin_msg    .=       '<td>'.$c_e.'</td>';
+                $admin_msg    .=       '<td>'.$status.'</td>';
+                $admin_msg    .=   '</tr>';
+            }
+
+            $admin_msg   .= '<tr><td colspan="5"><h3><br><br>Thank you, <br/>BEX Markets.</h3></td></tr>';
+            $admin_msg    .=   '</tbody>';
+            $admin_msg    .=  '</table>';
+
+            wp_mail( $admin_email, $subject, $admin_msg,'Content-type:text/html;charset=iso-8859-1',array());
+
+            echo "<p>Sent Notification To admin: $admin_email</p>";
+
+    }
+    public static  function sendNotificationSummaryAdmin($auctionID, $bondID, $winnerID ){
+    }
+    public static  function sendNotificationSummarySeller($auctionID, $bondID, $winnerID ){
+    }
+
+}/* class ends here */
+
+?>

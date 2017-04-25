@@ -1,0 +1,511 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+class AwMetaBoxes {
+
+    public static function auctionWinnerMetaBox() {
+       /* error_reporting(E_ALL);
+        ini_set('display_errors', 1);*/
+
+
+        echo '<style>#edit-slug-box{display: none;}</style>';
+        /* If not administrator Go back*/
+        if ( !is_admin() ) {
+            return;
+        }
+        add_meta_box(
+            'AwMetaBoxesBonds', __( 'Auction Bonds', 'AwBondManagement' ),
+            array( 'AwMetaBoxes', 'auctionWinnerMetaBoxBonds' ),
+            'auction',
+            'advanced',
+            'high'
+        );
+
+        add_meta_box(
+            'AwMetaBoxesBids',
+            esc_html__( 'Auction Bids   ', 'AwBondManagement' ),
+            array( 'AwMetaBoxes', 'auctionWinnerMetaBoxBids' ),
+            'auction',
+            'advanced',
+            'default'
+        );
+
+        add_meta_box(
+            'AwMetaBoxesWinner',
+            esc_html__( 'Auction Winners', 'AwBondManagement' ),
+            array( 'AwMetaBoxes', 'auctionWinnerMetaBoxWinner' ),
+            'auction',
+            'advanced',
+            'default'
+        );
+
+        add_meta_box(
+            'AwMetaBoxesBWICs',
+            esc_html__( 'All BWICs', 'AwBondManagement' ),
+            array( 'AwMetaBoxes', 'auctionWinnerMetaBoxBWICs' ),
+            'auction',
+            'advanced',
+            'default'
+        );
+
+
+    }
+
+    public function auctionWinnerMetaBoxBonds( $auction ) {
+         
+        echo '<div class="aw-bonds">';
+            echo AwMetaBoxes::getBonds($auction->ID);
+        echo '</div>';
+    }
+
+    public static function getBonds( $auctionID ) {
+
+        $html = '';
+        $html .= '<table class="table" style="width: 100%;text-align: left">';
+        $html .=    '<thead>';
+        $html .=        '<tr class="success">';
+        $html .=            '<th style="width: 10%">ID</th>';
+        $html .=            '<th style="width: 15%">Type</th>';
+        $html .=            '<th style="width: 10%;">Orig Rating</th>';
+        $html .=            '<th style="width: 15%;">CU SIP/ISIN</th>';
+        $html .=            '<th style="width: 20%;">TICKER</th>';
+        $html .=            '<th style="width: 15%;">Orig Size(MM)</th>';
+        $html .=            '<th style="width: 10%">Curr Size(MM)</th>';
+        $html .=            '<th style="width: 10%;">C/E</th>';
+        $html .=            '<th style="width: 10%;">Reserve Price</th>';
+        $html .=            '<th style="width: 10%;">Manager</th>';
+        $html .=        '</tr>';
+        $html .=    '</thead>';
+        $html .=    '<tbody>';
+
+        $bondIDs = get_post_meta( $auctionID, '_auction_meta_field_value', true );
+
+        foreach ($bondIDs as $bondID ) {
+
+            $bondUrl = admin_url().'/post.php?post='.$bondID.'&action=edit';
+
+            $list_id        = '<a href="'.$bondUrl.'" title="Go to  Bond">'.$bondID.'</a>';
+            $type           = get_post_meta($bondID,"type",true);
+            $orig_rating    = get_post_meta($bondID,"orig_rating",true);
+            $cusip_isin     = get_post_meta($bondID,"cusip/isin",true);
+            $ticker         = get_post_meta($bondID,"ticker",true);
+            $orig_size      = get_post_meta($bondID,"orig_size_(mm)",true);
+            $curr_size      = get_post_meta($bondID,"curr_size_(mm)",true);
+            $c_e            = get_post_meta($bondID,"c/e",true);
+            $manager        = get_post_meta($bondID,"manager",true);
+            $reserve_price  = get_post_meta($bondID,"reserve_price",true);
+
+            $html .=        '<tr class="warning">';
+            $html .=           '<td>'.$list_id.'</td>
+                                <td>'.$type.'</td>
+                                <td>'.$orig_rating.'</td>
+                                <td>'.$cusip_isin.'</td>
+                                <td>'.$ticker.'</td>
+                                <td>'.$orig_size.'</td>
+                                <td>'.$curr_size.'</td>
+                                <td>'.$c_e.'</td>
+                                <td>'.$reserve_price.'</td>
+                                <td> '.$manager.'</td>';
+            $html .=        '</tr>';
+        }
+
+        $html .=    '</tbody>';
+        $html .= '</table>';
+
+        return $html;
+
+    }
+
+    public function auctionWinnerMetaBoxBids( $auction ) {
+        $bonds = get_post_meta($auction->ID, '_auction_meta_field_value', true);
+        foreach ($bonds as $bond) {
+            $ticker         = get_post_meta($bond,"ticker",true);
+            echo '<div class="aw-bidders aw-bonds" style="cursor: pointer; ">';
+               echo '<h3><a href="javascript: void(0);" title="Show Bids" >Bond ID: '.$bond.'<span>Ticker: '.$ticker.'</span></a>';
+               echo '</h3>';
+               echo AwMetaBoxes::getBidUser($auction->ID, $bond);
+            echo '</div>';
+            ?>
+            <script>
+            jQuery( document ).ready(function() {
+                console.log( "ready Bonds!" );
+                jQuery(".aw-bidders").on("click", function(event) {
+                    event.preventDefault();
+                    jQuery(this).children(".awBidUser").slideToggle(300);
+                });
+            });
+            </script>
+            <?php
+        }
+    }
+
+    public function auctionWinnerMetaBoxWinner( $auction ) {
+        if($auction->status !== 'completed' ){
+            echo '<div style="text-align: center;">
+                    <h1 style="color: #FF0000;">Auction not completed yet.</h1>
+                </div>';
+            return;
+        }
+        $bonds = get_post_meta($auction->ID, '_auction_meta_field_value', true);
+        foreach ($bonds as $bond) {
+            echo '<div class="aw-bid-winner aw-bonds">';
+                echo AwMetaBoxes::getBidWinner($auction->ID, $bond);
+            echo '</div>';
+        }
+    }
+
+    public static function getPlacedBids($auctionID, $bondID) {
+        $meta_key           = 'user_placed_bid_'.$auctionID.'_'.$bondID;
+        $get_place_bid      = get_post_meta($auctionID, $meta_key, true);
+        return $get_place_bid;
+    }
+    public static function getBidUser( $auction_ID, $bond_ID ){
+
+        $reserve_price  = get_post_meta($bond_ID,"reserve_price",true);
+
+        $html = '';
+		$html .= '<table class="table awBidUser" style="width: 100%;text-align: left; display: none">';
+        $html .=    '<thead>';
+        $html .=        '<tr class="success">';
+        $html .=           '<th style="width: 35%">Bidder</th>';
+        $html .=           '<th style="width: 35%">Email</th>';
+        $html .=           '<th style="width: 15%">Bid Price</th>';
+        $html .=           '<th style="width: 15%">Reserve Price</th>';
+        $html .=        '</tr>';
+        $html .=    '</thead>';
+        $html .=    '<tbody>';
+
+
+        $meta_key   = 'user_placed_bid_'.$auction_ID.'_'.$bond_ID;
+        $placedBids = get_post_meta($auction_ID,$meta_key,true);
+
+        $user_id    = get_current_user_id();
+        $flag   = true;
+        foreach ($placedBids as $key => $bid ) {
+
+            if( !isset($placedBids[$key][$auction_ID][$bond_ID]) ){
+                continue;
+            }
+
+            $flag = false;
+
+            $userData = get_userdata($key);
+
+            $html .=        '<tr class="warning">';
+            $html .=            '<td>'.$userData->display_name.'</td>';
+            $html .=            '<td>'.$userData->user_email.'</td>';
+            $html .=            '<td>$'.$placedBids[$key][$auction_ID][$bond_ID].'</td>';
+            $html .=            '<td>'.$reserve_price.'</td>';
+            $html .=        '</tr>';
+        }
+
+        if( $flag ) {
+            $html .=        '<tr class="warning">';
+            $html .=            '<td colspan="4" style="text-align: center"><strong>No Bid Placed.</strong></td>';
+            $html .=        '</tr>';
+        }
+
+        $html .=    '</tbody>';
+        $html .= '</table>';
+
+        return $html;
+    }
+
+    public static function getBidWinner( $auction_ID, $bond_ID ){
+
+        $html = '';
+        $html .= '<table class="table awBidWinner" style="width: 100%;text-align: left;">';
+        $html .=    '<thead>';
+        $html .=        '<tr class="success">';
+        $html .=           '<th style="width: 10%">BID ID</th>';
+        $html .=           '<th style="width: 10%">Ticker</th>';
+        $html .=           '<th style="width: 20%">Bidder</th>';
+        $html .=           '<th style="width: 40%">Email</th>';
+        $html .=           '<th style="width: 20%">Winning Price</th>';
+        $html .=        '</tr>';
+        $html .=    '</thead>';
+        $html .=    '<tbody>';
+
+
+        $meta_key   = 'user_winning_bid_'.$auction_ID.'_'.$bond_ID;
+        $placedBids = get_post_meta($auction_ID,$meta_key,true);
+        $flag       = true;
+        if(!empty($placedBids)){
+            $tickers    = get_post_meta($bond_ID, 'ticker',true);
+            $user_id    = $placedBids[$auction_ID][$bond_ID]['user_id'];
+            $amount     = $placedBids[$auction_ID][$bond_ID]['amount'];
+            $userData   = get_userdata($user_id);
+            $flag       = false;
+
+            $html .=        '<tr class="warning">';
+            $html .=            '<td>'.$bond_ID.'</td>';
+            $html .=            '<td>'.$tickers.'</td>';
+            $html .=            '<td>'.$userData->display_name.'</td>';
+            $html .=            '<td>'.$userData->user_email.'</td>';
+            $html .=            '<td><span class="success">$'.$amount.'</span></td>';
+            $html .=        '</tr>';
+
+        }
+
+        if( $flag ) {
+            $html .=        '<tr class="warning">';
+            $html .=            '<td colspan="5" style="text-align: center"><strong>No Bid Placed.</strong></td>';
+            $html .=        '</tr>';
+        }
+
+        $html .=    '</tbody>';
+        $html .= '</table>';
+
+        return $html;
+
+    }
+
+    public static function auctionWinnerMetaBoxBWICs( $auction ){
+
+        $status     = get_post_meta($auction->ID,'status',true);  
+        if ($status == 'completed') {
+            echo '<div class="aw-bonds-select">';
+               echo AwMetaBoxes::auctionWinnerMetaBoxClosedBWICs($auction->ID);
+            echo '</div>';
+        }elseif ($status == 'pending') {
+            echo '<div class="aw-bonds-select">';
+               echo AwMetaBoxes::auctionWinnerMetaBoxUpcomingBWICs($auction->ID);
+            echo '</div>';
+        }else {
+            echo '<div style="text-align: center;">
+                    <h1 style="color: #FF0000;">Auction not completed yet.</h1>
+                </div>';
+        }
+
+    }
+
+    public static function auctionWinnerMetaBoxClosedBWICs( $auction ) {
+
+        $bonds      = get_post_meta($auction, '_auction_meta_field_value', true);
+        $end_date   = get_post_meta($auction,'end_date',true);  
+        $status     = get_post_meta($auction,'status',true);  
+        $args       = get_post($auction);
+        echo "<div><h3>".$args->post_title."   ".date("m-d-Y H:i:s", $end_date)."</h3></div>";
+        
+        foreach ($bonds as $bond) {
+            echo '<div class="aw-bonds">';
+               echo AwMetaBoxes::getClosedBWICsBond($auction, $bond);
+            echo '</div>';
+        }
+    }
+
+    public static function getClosedBWICsBond($auction, $bond){
+        
+        $post           =   get_post($auction);
+        
+        $seller_id      =   $post->post_author;
+        $bwic_ID        =   $auction;
+        $bond_ID        =   $bond;
+        $type           =   get_post_meta($bond_ID,"type",true);
+        $orig_rating    =   get_post_meta($bond_ID,"orig_rating",true);
+        $cusip_isin     =   get_post_meta($bond_ID,"cusip/isin",true);
+        $ticker         =   get_post_meta($bond_ID,"ticker",true);
+        $orig_size      =   get_post_meta($bond_ID,"orig_size_(mm)",true);
+        $curr_size      =   get_post_meta($bond_ID,"curr_size_(mm)",true);
+        $c_e            =   get_post_meta($bond_ID,"c/e",true);
+        $manager        =   get_post_meta($bond_ID,"manager",true);
+        $reserve_price  =   get_post_meta($bond_ID,"reserve_price",true);
+        $meta_key       =   'user_placed_bid_'.$bwic_ID.'_'.$bond_ID;
+        $placedBids     =   get_post_meta($bwic_ID,$meta_key,true);
+
+        $flag           =   true;
+
+        $html = '';
+        $html .= '<table class="table" cellpadding="0" cellspacing="0">';
+        $html .=    '<thead class="thead-inverse">';
+        $html .=        '<tr class="success">';
+        $html .=           '<th>Seller ID</th>';
+        $html .=           '<th>BWIC ID</th>';
+        $html .=           '<th>Bond ID</th>';
+        $html .=           '<th>Type</th>';
+        $html .=           '<th>Orig Rating</th>';
+        $html .=           '<th>CUSIP/ISIN</th>';
+        $html .=           '<th>Ticker</th>';
+        $html .=           '<th>Orig Size(MM)</th>';
+        $html .=           '<th>Curr Size(MM)</th>';
+        $html .=           '<th>C/E</th>';
+        $html .=           '<th>Manager</th>';
+        $html .=           '<th>Reserve Price</th>';
+        $html .=           '<th>Bid Recieved</th>';
+        $html .=           '<th>Bidder ID</th>';
+        $html .=           '<th>Result</th>';
+        $html .=        '</tr>';
+        $html .=    '</thead>';
+        $html .=    '<tbody>';
+
+        foreach ($placedBids as $key => $bid ) {
+
+            if( !isset($placedBids[$key][$bwic_ID][$bond_ID]) ){
+                continue;
+            }
+
+            $meta_key2      =   'user_winning_bid_'.$bwic_ID.'_'.$bond_ID;
+            $winners        =   get_post_meta($bwic_ID,$meta_key2,true);
+            $winner_id      =   $winners[$bwic_ID][$bond_ID]['user_id'];
+            
+            if ($winner_id == $key) {
+                $results = "Winner";
+            }else{
+                $results = "Loser";
+            }
+            
+            $flag       = false;
+            
+            $html .=        '<tr>';
+            $html .=            '<td>'.$seller_id.'</td>';
+            $html .=            '<td>'.$bwic_ID.'</td>';
+            $html .=            '<td>'.$bond_ID.'</td>';
+            $html .=            '<td>'.$type.'</td>';
+            $html .=            '<td>'.$orig_rating.'</td>';
+            $html .=            '<td>'.$cusip_isin.'</td>';
+            $html .=            '<td>'.$ticker.'</td>';
+            $html .=            '<td>'.$orig_size.'</td>';
+            $html .=            '<td>'.$curr_size.'</td>';
+            $html .=            '<td>'.$c_e.'</td>';
+            $html .=            '<td>'.$manager.'</td>';
+            $html .=            '<td>'.$reserve_price.'</td>';
+            $html .=            '<td>'.$placedBids[$key][$bwic_ID][$bond_ID].'</td>';
+            $html .=            '<td>'.$key.'</td>';
+            $html .=            '<td>'.$results.'</td>';
+            $html .=        '</tr>';      
+            
+        }
+
+        if( $flag ) {
+            $html .=        '<tr class="warning">';
+            $html .=            '<td colspan="15" style="text-align:center"><strong>No Bid Placed.</strong></td>';
+            $html .=        '</tr>';
+        }
+        
+          
+        $html .=    '</tbody>';
+        $html .= '</table>';
+
+        return $html;
+    }
+
+    public  static function auctionWinnerMetaBoxUpcomingBWICs( $auction ) {
+        
+        $bonds      = get_post_meta($auction, '_auction_meta_field_value', true);
+        $end_date   = get_post_meta($auction,'end_date',true);  
+        $status     = get_post_meta($auction,'status',true);  
+        $args       = get_post($auction);
+        
+        if ($status == 'pending' ) {
+            echo '<div style="text-align: center;">
+                    <h1 style="color: #FF0000;">Auction not completed yet.</h1>
+                </div>';
+            return;
+        }
+
+        echo "<div><h3>".$args->post_title."   ".date("m-d-Y H:i:s", $end_date)."</h3></div>";
+        
+        foreach ($bonds as $bond) {
+            echo '<div class="aw-bid-upcoming-bwic aw-bonds">';
+               echo AwMetaBoxes::getUpcomingBWICsBond($auction, $bond);
+            echo '</div>';
+        }
+    }
+
+    public static function getUpcomingBWICsBond($auction, $bond){
+        
+        $post           =   get_post($auction);
+        
+        $seller_id      =   $post->post_author;
+        $bwic_ID        =   $auction;
+        $bond_ID        =   $bond;
+        $type           =   get_post_meta($bond_ID,"type",true);
+        $orig_rating    =   get_post_meta($bond_ID,"orig_rating",true);
+        $cusip_isin     =   get_post_meta($bond_ID,"cusip/isin",true);
+        $ticker         =   get_post_meta($bond_ID,"ticker",true);
+        $orig_size      =   get_post_meta($bond_ID,"orig_size_(mm)",true);
+        $curr_size      =   get_post_meta($bond_ID,"curr_size_(mm)",true);
+        $c_e            =   get_post_meta($bond_ID,"c/e",true);
+        $manager        =   get_post_meta($bond_ID,"manager",true);
+        $reserve_price  =   get_post_meta($bond_ID,"reserve_price",true);
+        $meta_key       =   'user_placed_bid_'.$bwic_ID.'_'.$bond_ID;
+        $placedBids     =   get_post_meta($bwic_ID,$meta_key,true);
+
+        $flag           =   true;
+
+        $html = '';
+        $html .= '<table class="table">';
+        $html .=    '<thead class="thead-inverse">';
+        $html .=        '<tr class="success">';
+        $html .=           '<th>Seller ID</th>';
+        $html .=           '<th>BWIC ID</th>';
+        $html .=           '<th>Bond ID</th>';
+        $html .=           '<th>Type</th>';
+        $html .=           '<th>Orig Rating</th>';
+        $html .=           '<th>CUSIP/ISIN</th>';
+        $html .=           '<th>Ticker</th>';
+        $html .=           '<th>Orig Size(MM)</th>';
+        $html .=           '<th>Curr Size(MM)</th>';
+        $html .=           '<th>C/E</th>';
+        $html .=           '<th>Manager</th>';
+        $html .=           '<th>Reserve Price</th>';
+        $html .=           '<th>Bid Recieved</th>';
+        $html .=           '<th>Bidder ID</th>';
+        $html .=        '</tr>';
+        $html .=    '</thead>';
+        $html .=    '<tbody>';
+
+        foreach ($placedBids as $key => $bid ) {
+
+            if( !isset($placedBids[$key][$bwic_ID][$bond_ID]) ){
+                continue;
+            }
+
+            $meta_key2      =   'user_winning_bid_'.$bwic_ID.'_'.$bond_ID;
+            $winners        =   get_post_meta($bwic_ID,$meta_key2,true);
+            $winner_id      =   $winners[$bwic_ID][$bond_ID]['user_id'];
+            
+            if ($winner_id == $key) {
+                $results = "Winner";
+            }else{
+                $results = "Loser";
+            }
+            
+            $flag       = false;
+            
+            $html .=        '<tr>';
+            $html .=            '<td>'.$seller_id.'</td>';
+            $html .=            '<td>'.$bwic_ID.'</td>';
+            $html .=            '<td>'.$bond_ID.'</td>';
+            $html .=            '<td>'.$type.'</td>';
+            $html .=            '<td>'.$orig_rating.'</td>';
+            $html .=            '<td>'.$cusip_isin.'</td>';
+            $html .=            '<td>'.$ticker.'</td>';
+            $html .=            '<td>'.$orig_size.'</td>';
+            $html .=            '<td>'.$curr_size.'</td>';
+            $html .=            '<td>'.$c_e.'</td>';
+            $html .=            '<td>'.$manager.'</td>';
+            $html .=            '<td>'.$reserve_price.'</td>';
+            $html .=            '<td>'.$placedBids[$key][$bwic_ID][$bond_ID].'</td>';
+            $html .=            '<td>'.$key.'</td>';
+            $html .=        '</tr>';      
+            
+        }
+
+        if( $flag ) {
+            $html .=        '<tr class="warning">';
+            $html .=            '<td colspan="14" style="text-align:center"><strong>No Bid Placed.</strong></td>';
+            $html .=        '</tr>';
+        }
+        
+          
+        $html .=    '</tbody>';
+        $html .= '</table>';
+
+        return $html;
+    }
+
+
+
+}/* class ends here */
+?>

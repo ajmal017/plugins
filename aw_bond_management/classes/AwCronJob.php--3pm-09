@@ -1,0 +1,460 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+require '../../../../wp-load.php';
+require 'AwEmailTemplates.php';
+class AwCronJob {
+
+    public static  function getAutions( ) {
+        $auctionID     = '';
+        $bidprice      = '';
+        $bids_price    = '';
+        $startDateTime = time();
+        $posts_auction = get_posts(
+                                array(
+                                     'post_type'        =>  'auction',
+                                     'posts_per_page'   =>  -1,
+                                     'post_status'      =>  'publish',
+                                     'meta_query' => array(
+                                            'relation' => 'AND',
+                                            array(
+                                                'key' => 'end_date',
+                                                'value' => time(),
+                                                'compare' => '<',
+                                            ),
+                                            array(
+                                                'key' => 'status',
+                                                'value' => 'pending'
+                                            ),
+                                        ),
+                                    )
+                        );
+
+            /* filter posts */
+            $filteredPosts = array();
+            foreach ($posts_auction as $key => $row) {
+                $start  = $row->start_date;
+                $end    = $row->end_date;
+                $status = $row->status;
+
+                if ((time() > $end && $status == 'pending')) {
+                    $filteredPosts[] = $row;
+                }
+            }
+            $posts_auction = $filteredPosts;
+
+            return  $posts_auction;
+    }
+
+     public static  function getTiedAutions( ) {
+        $auctionID     = '';
+        $bidprice      = '';
+        $bids_price    = '';
+        $startDateTime = time();
+        $posts_auction = get_posts(
+                                array(
+                                     'post_type'        =>  'auction',
+                                     'posts_per_page'   =>  -1,
+                                     'post_status'      =>  'publish',
+                                     'meta_query' => array(
+                                            'relation' => 'AND',
+                                            array(
+                                                'key' => 'end_date',
+                                                'value' => time(),
+                                                'compare' => '<',
+                                            ),
+                                            array(
+                                                'key' => 'status',
+                                                'value' => 'tied'
+                                            ),
+                                        ),
+                                    )
+                        );
+
+            /* filter posts */
+            $filteredPosts = array();
+            foreach ($posts_auction as $key => $row) {
+                $start  = $row->start_date;
+                $end    = $row->end_date;
+                $status = $row->status;
+
+                if ((time() > $end && $status == 'tied')) {
+                    $filteredPosts[] = $row;
+                }
+            }
+            $posts_auction = $filteredPosts;
+
+            return  $posts_auction;
+    }
+
+
+
+    public static  function processAuctions() {
+        $postAuctions   = self::getAutions();
+        $getTiedAutions = self::getTiedAutions();
+
+
+        // echo "<pre>";
+        // print_r("<h1>{pending}</h1>");
+        // print_r($postAuctions  );
+        // echo "</pre>";
+
+        // echo "<pre>";
+        // print_r("<h1>{tied}</h1>");
+        // print_r($getTiedAutions  );
+        // echo "</pre>";
+
+        // die();
+
+        if( empty($postAuctions)){
+            echo "<p>No Auction to process</p>";
+        }
+
+        foreach($postAuctions as $auction ) {
+            echo "<h1>Auction ID: ".$auction->ID."</h1>";
+            AwCronJob::processPendingAuctions( $auction );
+        }
+
+        die();
+
+        if( empty($getTiedAutions)){
+            echo "<p>No Tied Auction to process</p>";
+        }
+        foreach($getTiedAutions as $auction ) {
+
+            /*process Tired auctions*/
+            $result =  self::processTiredAuctions( $auction );
+            if( $result ){
+                self::updateStatus( $auction->ID );
+            }
+        }
+    }
+
+    /******************************* Section addded 08.12.2016 ***************************************/
+
+    public static  function processPendingAuctions( $auction ) {
+
+        $winner   = array();
+        $bonds    = get_post_meta($auction->ID, '_auction_meta_field_value', true);
+
+        foreach ( $bonds as $bondID ) {
+            // echo "<br> Bond ID: ". $bondID;
+            AwCronJob::processPendingBonds( $auction->ID, $bondID );
+        }
+        return true;
+    }
+
+    public static  function processPendingBonds( $auctionID, $bondID ) {
+        $bids           = AwCronJob::getUserPlacedBids( $auctionID, $bondID );
+        $reservePrice   = AwCronJob::getBondReservePrice( $auctionID, $bondID );
+
+        $winner         = array();
+        $higestAmount   = 0;
+        $flag           = true;
+        $bidAmounts     = array();
+
+        if( $reservePrice ){
+            echo "Reserve set Process: $auctionID | $bondID <br>";
+            $result = AwCronJob::processBidsItems( $auctionID, $bondID, $reservePrice, $bids );
+
+            echo "<pre>";
+            print_r( $result );
+            echo "</pre>";
+        }else{
+            echo "Don't Process: $auctionID | $bondID <br>";
+            /*No Bids Placed() */
+        }
+
+        return true;
+    }
+
+    public static  function processBidsItems( $auctionID, $bondID, $reservePrice,  $bids ) {
+
+        $winner         = array();
+        $higestAmount   = 0;
+        $bidAmounts     = array();
+        $flag           = true;
+
+        $returnData     = array();
+
+        foreach ($bids as $key => $bid ) {
+
+            if( !isset($bids[$key][$auctionID][$bondID]) ){
+                continue;
+            }
+
+            $bidAmounts[$key] = $bids[$key][$auctionID][$bondID];
+
+            /* check if the bid amount is greater than reservePrice */
+            if( $bids[$key][$auctionID][$bondID] >  $reservePrice ){
+                if( $higestAmount <  $bids[$key][$auctionID][$bondID] ){
+                    $winner[$auctionID][$bondID]['amount']  = $bids[$key][$auctionID][$bondID];
+                    $winner[$auctionID][$bondID]['user_id'] = $key;
+                    $higestAmount  = $bids[$key][$auctionID][$bondID];
+                }
+            }
+        }
+
+        /*check if there is tie */
+        $checkTired = AwCronJob::checkTied( $bidAmounts, $higestAmount, $reservePrice  );
+
+        if( !$checkTired ){
+            /*initialize return data */
+            $returnData['status']       = AwCronJob::getBidStatus($winner);
+            $returnData['winner']       = $winner;
+            $returnData['higestAmount'] = $higestAmount;
+            $returnData['bidAmounts']   = $bidAmounts;
+        }else{
+            $returnData['status']       = 'tied';
+            $returnData['winner']       = array();
+            $returnData['higestAmount'] = $higestAmount;
+            $returnData['bidAmounts']   = $bidAmounts;
+        }
+
+        return $returnData;
+    }
+
+    public static  function checkTied( $bidAmounts, $higestAmount, $reservePrice  ) {
+            $tmp            = array_count_values($bidAmounts);
+            $cnt            = $tmp[$higestAmount];
+            if( $cnt > 1  && $reservePrice < $higestAmount){
+                return true;
+            }else{
+                return false;
+            }
+    }
+
+
+
+    public static  function getBidStatus( $winner ) {
+        if (empty($winner)) {
+            return 'loser';
+        }else{
+            return 'winner';
+        }
+    }
+
+    public static  function getUserPlacedBids( $auctionID, $bondID ) {
+        $auction_ID     = $auctionID;
+        $bond_ID        = $bondID;
+
+        $meta_key       = 'user_placed_bid_'.$auction_ID.'_'.$bond_ID;
+        $placedBids     = get_post_meta($auctionID,$meta_key,true);
+
+        if (empty($placedBids)) {
+            return false;
+        }else{
+            return $placedBids;
+        }
+    }
+
+    public static  function getBondReservePrice( $auctionID, $bondID ) {
+        $auction_ID     = $auctionID;
+        $bond_ID        = $bondID;
+
+        $reservePrice   = get_post_meta($bond_ID,'reserve_price', true);
+
+        if ( ($reservePrice == '' ||  $reservePrice == 0) ) {
+            return false;
+        }else{
+            return $reservePrice;
+        }
+    }
+
+    public static  function isBidValid( $reservePrice, $bidPrice ) {
+        if(  $bidPrice > $reservePrice ){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public static  function hasBondWinner( $auctionID, $bondID ) {}
+    public static  function setBondStatus( $auctionID, $bondID ) {}
+
+    /******************************* Section added 08.12.2016 end ***********************************/
+
+    public static  function checkIfTired( $auctionID ) {
+        $auction_status = get_post_meta($auctionID , "status", true);
+
+        if( $auction_status == 'tied' ){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public static  function processTiredAuctions( $auction ) {
+
+        $winner   = array();
+        $bonds    = get_post_meta($auction->ID, '_auction_meta_field_value', true);
+
+        foreach( $bonds as $bond ) {
+
+            $winner         = array();
+            $higestAmount   = 0;
+            $flag           = true;
+            $bidAmounts     = array();
+
+            $meta_key       = 'user_placed_bid_'.$auction->ID.'_'.$bond;
+            $placedBids     = get_post_meta($auction->ID,$meta_key,true);
+
+            $auction_ID     = $auction->ID;
+            $bond_ID        = $bond;
+            $reservePrice   = get_post_meta($bond_ID,'reserve_price', true);
+
+            if ( $reservePrice != '' ||  $reservePrice != 0 ) {
+
+                if (empty($placedBids)) {
+                    return;
+                }
+
+                foreach ($placedBids as $key => $bid ) {
+
+                    if( !isset($placedBids[$key][$auction_ID][$bond_ID]) ){
+                        continue;
+                    }
+                    $flag = false;
+
+                    $bidAmounts[$key] = $placedBids[$key][$auction_ID][$bond_ID];
+
+                    if( $higestAmount <  $placedBids[$key][$auction_ID][$bond_ID] ){
+                        $winner[$auction_ID][$bond_ID]['amount'] = $placedBids[$key][$auction_ID][$bond_ID];
+                        $winner[$auction_ID][$bond_ID]['user_id'] = $key;
+                        $higestAmount  = $placedBids[$key][$auction_ID][$bond_ID];
+                    }
+                }
+
+                $tmp            = array_count_values($bidAmounts);
+                $cnt            = $tmp[$higestAmount];
+
+                $auction_status = get_post_meta($auction_ID, "status", true);
+
+                $winner_id      =   $winner[$auction_ID][$bond_ID]['user_id'];
+                $seller_id      =   $auction->post_author;
+
+                $meta_key2      =   'user_winning_bid_'.$auction_ID.'_'.$bond_ID;
+                $check_winner   =   metadata_exists('post', $auction_ID, $meta_key2 );
+
+                $reservePrice   =   get_post_meta($bond_ID, 'reserve_price', true);
+
+                $tiedUser       =   array();
+
+                if( $cnt > 1  && $reservePrice < $higestAmount){
+                    return false;
+                }
+
+                if( $higestAmount > 0 ){
+                    $meta_key   = 'user_winning_bid_'.$auction_ID.'_'.$bond_ID;
+                    $placedBids = update_post_meta($auction_ID,$meta_key, $winner);
+                    AwEmailTemplates::ifWinner($winner_id, $seller_id, $auction_ID);
+                }else{
+                    if ($check_winner == false) {
+                        AwEmailTemplates::ifNoWinner($winner_id, $seller_id, $auction_ID);
+                    }
+                }
+            }
+
+        }
+        return true;
+    }
+
+    public static  function updateStatus( $auctionID , $status =  'completed' ) {
+        update_post_meta($auctionID,'status',$status);
+    }
+
+    public static function makeWinner(  $auction )  {
+
+        $winner   = array();
+        $bonds    = get_post_meta($auction->ID, '_auction_meta_field_value', true);
+
+        foreach ($bonds as $bond) {
+            $winner         = array();
+            $higestAmount   = 0;
+            $flag           = true;
+            $bidAmounts     = array();
+
+            $meta_key       = 'user_placed_bid_'.$auction->ID.'_'.$bond;
+            $placedBids     = get_post_meta($auction->ID,$meta_key,true);
+
+            $auction_ID     = $auction->ID;
+            $bond_ID        = $bond;
+            $reservePrice   = get_post_meta($bond_ID,'reserve_price', true);
+
+            if ($reservePrice !== "" ||  $reservePrice !== "0" ) {
+
+                if (empty($placedBids)) {
+                    return;
+                }
+                foreach ($placedBids as $key => $bid ) {
+
+                    if( !isset($placedBids[$key][$auction_ID][$bond_ID]) ){
+                        continue;
+                    }
+                    $flag = false;
+
+                    $bidAmounts[$key] = $placedBids[$key][$auction_ID][$bond_ID];
+
+                    if( $higestAmount <  $placedBids[$key][$auction_ID][$bond_ID] ){
+                        $winner[$auction_ID][$bond_ID]['amount'] = $placedBids[$key][$auction_ID][$bond_ID];
+                        $winner[$auction_ID][$bond_ID]['user_id'] = $key;
+                        $higestAmount  = $placedBids[$key][$auction_ID][$bond_ID];
+                    }
+                }
+
+                $tmp            = array_count_values($bidAmounts);
+                $cnt            = $tmp[$higestAmount];
+
+                $auction_status = get_post_meta($auction->ID, "status", true);
+
+                $winner_id      =   $winner[$auction_ID][$bond_ID]['user_id'];
+                $seller_id      =   $auction->post_author;
+
+                $meta_key2      =   'user_winning_bid_'.$auction_ID.'_'.$bond_ID;
+                $check_winner   =   metadata_exists('post', $auction_ID, $meta_key2 );
+
+                $reservePrice   =   get_post_meta($bond_ID, 'reserve_price', true);
+
+                $tiedUser       =   array();
+
+                if( $cnt > 1  && $reservePrice < $higestAmount){
+                    foreach ($bidAmounts as $user_id => $amount ) {
+                        if( $amount ==  $higestAmount ){
+                           AwEmailTemplates::ifTied($user_id, $seller_id, $auction_ID);
+                           $tiedUser[$auction_ID][$bond_ID][] = $user_id;
+                        }
+                    }
+
+                    $meta_key3      = 'user_tied_autctions';
+                    update_post_meta($auction_ID,$meta_key3,$tiedUser);
+
+                    /*update status */
+                    self::updateStatus($auction_ID , 'tied' );
+                    return;
+                }
+
+                if( $higestAmount > 0 ){
+                    $meta_key   = 'user_winning_bid_'.$auction_ID.'_'.$bond_ID;
+                    $placedBids = update_post_meta($auction_ID,$meta_key, $winner);
+                    echo "Updated Winner For ".$auction_ID.'_'.$bond_ID."<br>";
+                    AwEmailTemplates::ifWinner($winner_id, $seller_id, $auction_ID);
+                }else{
+                    if ($check_winner === false) {
+                        AwEmailTemplates::ifNoWinner($winner_id, $seller_id, $auction_ID);
+                    }
+                }
+            }
+        }
+        return true;
+    }
+}/* class ends here */
+
+$AwCronJob = new AwCronJob;
+
+
+echo "<pre>";
+print_r( $AwCronJob->processAuctions() );
+echo "</pre>";
+
+?>
