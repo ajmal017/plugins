@@ -1,0 +1,18 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+class awMarketingManager {
+    //** Constructor **//
+    function __construct() {
+        /*Uploader Section*/
+        add_shortcode('amm_upload', array( 'AmmUploader', 'upload'));
+        
+        /*Buyer section*/
+        add_shortcode('amm_buyer', array( 'AmmBuyer', 'getBonds'));
+        
+        /*Seller section*/
+        add_shortcode('amm_seller', array( 'AmmSeller', 'seller'));
+    }    
+
+}/*class ends here*/
+?>

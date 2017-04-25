@@ -1,0 +1,20 @@
+<?php 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+class AmmUploader {
+
+    function upload(){
+
+        $currentDir = dirname(__FILE__);
+        ?>
+        <form name="form" id="form" method="post" enctype="multipart/form-data">
+            <div>Upload CSV</div>
+            <input type="hidden" name="test" value="abc">
+            <div><input type="file" name="csv_file" id="csv_file" /><img id="loading-image" class="loading-image" height="20" width="20" src="<?php echo $currentDir;?>/ajax-loading-big.gif" /></div>
+            <div><input type="submit" name="submit" value="Submit" class="bwic_submit" /></div>
+            <!-- <div><a  onclick="dataUpload()" class="bwic_btn">Submit</a></div> -->
+        </form>
+        <?php
+    }
+
+} /*Class ends */    

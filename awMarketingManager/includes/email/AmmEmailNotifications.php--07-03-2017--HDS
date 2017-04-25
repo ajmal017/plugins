@@ -1,0 +1,220 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+class AmmEmailNotifications extends AmmEmailTemplates{
+
+
+
+    public static function sendNotificationToAdmin($bonds ){
+
+        $admin_email   =   get_option( 'admin_email' );
+
+        $Thead = array('Type','Orig Rating','CUSIP/ISIN','TICKER','Orig Size (MM)','Manager','Offer Price');
+
+        $message['header'] = "the following are for being offered on BEXMarkets:";
+        $message['footer'] = "Best regards,";
+          
+        $subject        = "Notification: Bonds Uploaded |";
+
+        $html  = '';
+        $html .= self::emmailTemplateHeader( $admin_email,$message);
+        $html .= self::emmailTemplateThead( $Thead );
+        
+        $html .= '<tbody>';
+
+       
+            foreach ( $bonds as $bond ) {
+
+                    $tbody['type']           = $bond['type'];
+                    $tbody['orig_rating']    = $bond['orig_rating'];
+                    $tbody['cusip/isin']     = $bond['cusip/isin'];
+                    $tbody['ticker']         = $bond['ticker'];
+                    $tbody['orig_size_(mm)'] = self::formatAmount($bond['orig_size_(mm)']);
+                    $tbody['manager']        = $bond['manager']; 
+                    $tbody['offer_price']    = self::formatAmount($bond['offer_price']);
+
+                $html    .=   self::emmailTemplateTbody($tbody);
+            
+            }
+
+        $html .= '</tbody>';
+
+        $html .= self::emmailTemplateFooter($message);
+
+
+        wp_mail( $admin_email, $subject, $html,'Content-type:text/html;charset=iso-8859-1',array());
+
+            //echo "<p>Sent Notification To admin: $admin_email</p>";
+    }
+
+    public static function formatAmount( $price ) {
+
+        /* check if $ exist in cover price */
+        $findDoller     = strpos($price[0],'$');
+        $appendCover    = "";
+        if($findDoller === false){
+            $appendCover =    "$".$price;
+        }else{
+            $appendCover =    $price;
+        }
+
+
+        /* check if . exist in orig size */
+        $findDot    = strpos($appendCover,'.');
+        $appendOrig = "";
+        if($findDot === false){
+            $appendOrig =    $appendCover.".00";
+        }else{
+            $appendOrig =    $appendCover;
+        }
+
+        return $appendOrig;
+    }
+
+       
+    // public static  function sendNotificationSummaryAdmin($auctionID, $bondID, $winnerID ){}
+    public static  function sendNotificationSummarySeller($bonds){
+        
+
+
+        $args = array(
+            'role__not_in' => array('administrator'),
+        ); 
+
+        $message['header'] = "the following are for being offered on BEXMarkets:";
+        $message['footer'] = "Best regards,";
+        
+        $user = get_users( $args ); 
+        foreach($user as $seller){
+            $subject        = "Notification: Bonds Uploaded |";
+
+            $author_name  = $seller->data->display_name;
+
+            $Thead = array('Type','Orig Rating','CUSIP/ISIN','TICKER','Orig Size (MM)','Manager','Offer Price');
+
+            $html  = '';
+            $html .= self::emmailTemplateHeader( $author_name,$message);
+            $html .= self::emmailTemplateThead( $Thead );
+        
+            $html .= ' <tbody>';
+
+                foreach ( $bonds as $bond ) {
+                        
+                    $tbody['type']           = $bond['type'];
+                    $tbody['orig_rating']    = $bond['orig_rating'];
+                    $tbody['cusip/isin']     = $bond['cusip/isin'];
+                    $tbody['ticker']         = $bond['ticker'];
+                    $tbody['orig_size_(mm)'] = self::formatAmount($bond['orig_size_(mm)']);
+                    $tbody['manager']        = $bond['manager']; 
+                    $tbody['offer_price']    = self::formatAmount($bond['offer_price']);
+
+                    $html    .=   self::emmailTemplateTbody($tbody);
+                
+                }
+
+            $html .= ' </tbody>';
+            $html .= self::emmailTemplateFooter($message);
+        
+            $seller_email = $seller->data->user_email;
+            wp_mail( $seller_email, $subject, $html,'Content-type:text/html;charset=iso-8859-1',array());
+        }
+         //echo "<p>Notification sent to Seller1: $seller_email</p>";
+    }
+
+
+    public static  function sendNotificationBidLessThanOffer($bond_id, $bid_price, $offer_price){
+
+            $get_author_id  = get_post( $bond_id );
+
+            $author_id      = $get_author_id->post_author;
+
+            $author_email   =   get_the_author_meta('user_email', $author_id);
+            $author_name    =   get_the_author_meta('display_name', $author_id);
+        
+            $subject        = "Notification: Bid Notification |";
+
+            $Thead          = array('Type','Orig Rating','CUSIP/ISIN','TICKER','Orig Size (MM)','Manager','Offer Price', 'Bid Price');
+
+            $message['header'] = "you have received bids below your offer price for the following:";
+            $message['footer'] = "Best regards,";
+
+                $tbody['type']           = get_post_meta($bond_id,"type",true);
+                $tbody['orig_rating']    = get_post_meta($bond_id,"orig_rating",true);
+                $tbody['cusip/isin']     = get_post_meta($bond_id,"cusip/isin",true);
+                $tbody['ticker']         = get_post_meta($bond_id,"ticker",true);
+                $tbody['orig_size_(mm)'] = self::formatAmount(get_post_meta($bond_id,"orig_size_(mm)",true));
+                $tbody['manager']        = get_post_meta($bond_id,"manager",true); 
+                $tbody['offer_price']    = self::formatAmount($offer_price);
+                $tbody['bid_price']      = self::formatAmount($bid_price);
+
+            $html  = '';
+            $html .= self::emmailTemplateHeader( $author_name,$message);
+            $html .= self::emmailTemplateThead( $Thead );
+
+            $html .= ' <tbody>';
+
+            $html .=   self::emmailTemplateTbody($tbody);
+
+            $html     .= ' </tbody>';
+            $html .= self::emmailTemplateFooter($message);
+
+            #echo $author_email;
+        
+            #$seller_email = $author_email;
+            wp_mail( $author_email, $subject, $html,'Content-type:text/html;charset=iso-8859-1',array());
+        
+         //echo "<p>Notification sent to Seller1: $seller_email</p>";
+    }
+
+    public static  function sendNotificationBidderonTrade($bond_id, $bid_price, $bid_user){
+
+            $get_author_id  = get_post( $bond_id );
+
+            $author_id      = $get_author_id->post_author;
+
+            $bid_user_email = get_the_author_meta('user_email', $bid_user);
+
+            $author_email   =   get_the_author_meta('user_email', $author_id);
+            $author_name    =   get_the_author_meta('display_name', $author_id);
+        
+            $subject        = "Notification: Trade Status |";
+
+            $message['header'] = "you have traded the following:";
+            $message['footer'] = "Thank you for trading,";
+
+            $Thead = array('Type','Orig Rating','CUSIP/ISIN','TICKER','Orig Size (MM)','Manager','Offer Price', 'Bid Price', 'Trade Status');
+
+                $tbody['type']           = get_post_meta($bond_id,"type",true);
+                $tbody['orig_rating']    = get_post_meta($bond_id,"orig_rating",true);
+                $tbody['cusip/isin']     = get_post_meta($bond_id,"cusip/isin",true);
+                $tbody['ticker']         = get_post_meta($bond_id,"ticker",true);
+                $tbody['orig_size_(mm)'] = self::formatAmount(get_post_meta($bond_id,"orig_size_(mm)",true));
+                $tbody['manager']        = get_post_meta($bond_id,"manager",true);
+                $tbody['offer_price']    = self::formatAmount($offer_price);
+                $tbody['bid_price']      = self::formatAmount($bid_price);
+                $tbody['trade_status']   = 'Trade Status';
+
+            $html  = '';
+            $html .= self::emmailTemplateHeader( $author_name,$message);
+
+            $html .= self::emmailTemplateThead( $Thead );
+
+            $html .= '  <tbody>';
+
+            $html .=   self::emmailTemplateTbody($tbody);
+          
+            $html .= ' </tbody>';
+
+            $html .= self::emmailTemplateFooter();
+
+           
+            #$seller_email = $author_email;bid_user_email
+            wp_mail( $author_email, $subject, $html,'Content-type:text/html;charset=iso-8859-1',array());
+            wp_mail( $bid_user_email, $subject, $html,'Content-type:text/html;charset=iso-8859-1',array());
+        
+         //echo "<p>Notification sent to Seller1: $seller_email</p>";
+    }
+
+}/* class ends here */
+
+?>

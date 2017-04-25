@@ -1,0 +1,37 @@
+<?php
+/*
+	Plugin Name: Aw Marketing Manager
+	Plugin URI:
+	Description: This plugin Marketing options.
+	Version: 1.0.0
+	Author: G0947
+	Author URI:
+	License:
+*/
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+ error_reporting(E_All);
+ini_set('display_errors',1);
+include('includes/buyer/AmmBuyer.php');
+include('includes/seller/AmmSeller.php');
+include('includes/uploader/AmmUploader.php');
+include('includes/uploader/BuyerUploader.php');
+
+include('includes/ajax/AmmAjax.php');
+include('includes/ajax/AmmAjaxFunction.php');
+
+
+include('includes/email/AmmEmailTemplates.php');
+include('includes/email/AmmEmailNotifications.php');
+
+include('includes/metabox/AmmMetaBoxes.php');
+
+/*starting class*/
+include('includes/main/awMarketingManager.php');
+
+include('includes/buyer/wirebond_list.php');
+include('includes/buyer/wire_seller_bonds.php');
+
+/*  create plugin object. */
+new awMarketingManager;
+?>

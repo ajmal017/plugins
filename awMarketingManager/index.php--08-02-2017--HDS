@@ -1,0 +1,25 @@
+<?php
+/*
+	Plugin Name: Aw Marketing Manager
+	Plugin URI:
+	Description: This plugin Marketing options.
+	Version: 1.0.0
+	Author: G0947
+	Author URI:
+	License:
+*/
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+include('includes/buyer/AmmBuyer.php');
+include('includes/seller/AmmSeller.php');
+include('includes/uploader/AmmUploader.php');
+
+include('includes/ajax/AmmAjax.php');
+include('includes/ajax/AmmAjaxFunction.php');
+
+/*starting class*/
+include('includes/main/awMarketingManager.php');
+
+/*  create plugin object. */
+new awMarketingManager;
+?>

@@ -1,0 +1,32 @@
+<?php 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+class AmmAjaxFunction {
+
+	public static function ammMarketBid() {
+
+        $user_id    = get_current_user_id();
+        $bond_id = $_POST['object']["id"];
+        //$bon_id     = $_POST["bon_id"];
+        $bid_price  = $_POST['object']["bid_price"];
+
+        /*update postmeta */
+        $meta_key       = 'market_placed_bid_'.$bond_id;
+        $userPlacedBid  = get_post_meta( $bond_id, $meta_key, true );
+        
+        $userPlacedBid[$user_id][$bond_id] = $bid_price;
+        update_post_meta( $bond_id, $meta_key,$userPlacedBid );
+
+
+        /*update usermeta*/
+        $meta_key           = 'market_placed_bid';
+        $userMetaPlacedBid  = get_user_meta( $user_id, $meta_key, true );
+        $userMetaPlacedBid[$bond_id] = $bid_price;
+        update_user_meta( $user_id, $meta_key,$userMetaPlacedBid );
+        
+        echo json_encode($userPlacedBid);
+        die;
+    }
+
+
+}
