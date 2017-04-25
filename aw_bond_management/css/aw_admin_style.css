@@ -1,0 +1,14 @@
+/* style.css */
+
+.aw-bonds{min-width:225px;}
+
+.aw-bonds{font-size:12px; width:100%; overflow-x:auto; margin:0px 0px 20px 0px;}
+.aw-bonds table{border:0px; font-size:12px; width:100%; border-collapse:collapse;}
+.aw-bonds table tr:nth-child(odd) {background-color: #fcfcfc;}
+.aw-bonds table tr th{padding:10px; text-align:center; vertical-align:top; border:1px #eee solid; white-space:nowrap}
+.aw-bonds table tr td{padding:10px; text-align:center; vertical-align:top; border:1px #eee solid;}
+
+.aw-bidders h3{margin:0px;}
+.aw-bidders h3 a{display:block; padding:15px; color:#fff; text-decoration:none; font-weight:300; background:#23282d;}
+.aw-bidders h3 a span{float:right;}
+.aw-bidders h3 a:hover{background:#2d3338;}
