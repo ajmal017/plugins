@@ -1,0 +1,106 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+class AwAjax {
+	public static function getMainSection(){
+		$rand = rand(10,100);
+		$rand = 'aw_'.$rand;
+	?>
+		<div class="main-section">
+			<a href="#" class="uk-button" data-uk-toggle="{target:'#<?php echo $rand;?>'}"><i class="uk-icon-chevron-down"></i></a>
+			<a href="#" class="uk-button close-btn"><i class="uk-icon-times"></i></a>
+			<div class="form-wrapper">
+				<div class="form-wrapper-inner" id="<?php echo $rand;?>" aria-hidden="false">
+					<div class="row-wrapper">
+				    	<div class="col-3">
+				            <div class="select-room-row">
+				                   <?php echo AwComponents::getRoomType(); ?>
+				            </div>
+				        </div>
+				        <div class="col-3">
+				            <div class="select-room-row area-select-section">
+				            	<!-- area type select code goes here -->
+				            </div>
+				        </div>
+				        <div class="col-3">
+				            <div class="select-room-row area-btn-section">
+				            	<a href="#" class="uk-button uk-button-primary hidden">Add Area</a>
+				            </div>
+				        </div>
+				        <div class="clear"></div>
+				    </div>
+				    <div class="main-section-divider"></div>
+				</div>
+			</div>
+
+		</div> <!-- main-section -->
+
+	<?php
+		die();
+	}
+
+	public static function getAreaSelect(){
+		$itemtype = $_POST['itemtype'];
+		echo AwComponents::getArea($itemtype);
+		die();
+	}
+
+	/*funtion to get areas */
+	public static function getAreaSection(){
+		$areaType  = trim($_POST['area_type']);
+		$areaType  = str_replace(" ", "_", $areaType);
+		$areaType = strtolower($areaType);
+
+		// floor
+		// tub_shower
+		// shower
+		// shower_floor
+		// drop_in_tub
+		// wainscot
+		// backsplash
+		// fireplace
+
+		switch ($areaType) {
+			case 'floor':
+				echo AwComponents::getFloor();
+				break;
+
+			case 'tub_shower':
+				echo AwComponents::getTubShower();
+				break;
+
+			case 'shower':
+				echo AwComponents::getShower();
+				break;
+
+			case 'shower_floor':
+				echo AwComponents::getFloor();
+				break;
+
+			case 'drop_in_tub':
+				echo AwComponents::getTubShower();
+				break;
+
+			case 'wainscot':
+				echo AwComponents::getTubShower();
+				break;
+
+			case 'backsplash':
+				echo AwComponents::getBacksplash();
+				break;
+
+			case 'fireplace':
+				echo AwComponents::getFireplace();
+				break;
+
+			default:
+				echo '<div class="area-wrapper"><div class="row-wrapper"><div class="col-1"><div class="select-room-row"> <h1> Selected: '.$areaType.' </h1> </div></div><div class="clear"></div></div></div>';
+				break;
+		}
+
+		die();
+	}
+
+}/* class ends here */
+
+?>

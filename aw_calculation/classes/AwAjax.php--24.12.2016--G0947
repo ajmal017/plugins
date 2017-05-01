@@ -1,0 +1,87 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+// div for divider.
+// <div class="main-section-divider"></div>
+
+class AwAjax {
+	public static function getMainSection(){
+		echo AwComponents::getMainSection();
+		die();
+	}
+
+	public static function getInnerMainSection(){
+		echo AwComponents::getInnerMainSection();
+		die();
+	}
+
+	public static function getAreaSelect(){
+		$itemtype = $_POST['itemtype'];
+		echo AwComponents::getArea($itemtype);
+		die();
+	}
+
+	/*funtion to get areas */
+	public static function getAreaSection(){
+		$areaType  = trim($_POST['area_type']);
+		$areaType  = str_replace(" ", "_", $areaType);
+		$areaType = strtolower($areaType);
+
+		// floor
+		// tub_shower
+		// shower
+		// shower_floor
+		// drop_in_tub
+		// wainscot
+		// backsplash
+		// fireplace
+
+		switch ($areaType) {
+			case 'floor':
+				echo AwComponents::getFloorHeader();
+				break;
+
+			case 'tub_shower':
+				echo AwComponents::getTubShower();
+				break;
+
+			case 'shower':
+				echo AwComponents::getShower();
+				break;
+
+			case 'shower_floor':
+				echo AwComponents::getFloorHeader();
+				break;
+
+			case 'drop_in_tub':
+				echo AwComponents::getTubShower();
+				break;
+
+			case 'wainscot':
+				echo AwComponents::getTubShower();
+				break;
+
+			case 'backsplash':
+				echo AwComponents::getBacksplash();
+				break;
+
+			case 'fireplace':
+				echo AwComponents::getFireplace();
+				break;
+
+			default:
+				echo '<div class="area-wrapper"><div class="row-wrapper"><div class="col-1"><div class="select-room-row"> <h1> Selected: '.$areaType.' </h1> </div></div><div class="clear"></div></div></div>';
+				break;
+		}
+
+		die();
+	}
+
+	public static function getFloorSection(){
+		echo AwComponents::getFloor();
+		die();
+	}
+
+}/* class ends here */
+
+?>

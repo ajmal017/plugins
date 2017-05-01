@@ -1,0 +1,1084 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+class AwComponents {
+
+	public static $selectedoption;
+	public static $roomTypeID;
+	public static $areaTypeID;
+	public static $sectionTypeID;
+
+	public static function getMainSection(){
+		$uniqid = uniqid();
+		$rand 	= 'aw_'.$uniqid;
+
+		self::$roomTypeID = $rand;
+		ob_start();
+		?>
+			<div class="main-section">
+				<div class="aw-toolbar">
+					<input type="hidden" name="roomTypeID" value="<?php echo $rand;?>" />
+					<a href="#" class="uk-button aw-toggle-btn" title="minimize" data-uk-toggle="{target:'#<?php echo $rand;?>', animation:'uk-animation-slide-bottom, uk-animation-slide-bottom'}"><i class="uk-icon-chevron-down"></i></a>
+					<a href="#" class="uk-button add-area-btn" title="Add Area"><i class="uk-icon-plus"></i></a>
+					<a href="#" class="uk-button close-btn" title="close"><i class="uk-icon-times"></i></a>
+				</div>
+				<div class="form-wrapper">
+					<div class="form-wrapper-inner" id="<?php echo $rand;?>" aria-hidden="false">
+						<!-- inner section comes here-->
+						<?php echo AwComponents::getInnerMainSection();?>
+					</div>
+				</div>
+			</div> <!-- main-section -->
+		<?php
+		$output = ob_get_clean();
+		return $output;
+	}
+
+	/*get inner-main-section*/
+	public static function getInnerMainSection(){
+		$uniqid 	= uniqid();
+		$area_inner = 'aw_inner_'.$uniqid;
+
+		self::$areaTypeID = $area_inner;
+		ob_start();
+		?>
+			<div class="form-wrapper-internal-collapse" style="margin-bottom: 5px;">
+				<h3 class="inner-collapse-bar">
+					<input type="hidden" name="areaTypeID" value="<?php echo $area_inner;?>" />
+					<a href="#" class="btn-2 area-close" title="close"><i class="uk-icon-times"></i></a>
+					<a href="#" class="btn-1 aw-area-toggle-btn" title="minimize" data-uk-toggle="{target:'#<?php echo $area_inner;?>', animation:'uk-animation-slide-bottom, uk-animation-slide-bottom'}"><i class="uk-icon-chevron-down"></i></a>
+				</h3>
+				<div class="inner-main-section" id="<?php echo $area_inner;?>" aria-hidden="false">
+					<div class="row-wrapper">
+				    	<div class="col-2">
+				            <div class="select-room-row">
+				                   <?php echo AwComponents::getRoomType(); ?>
+				            </div>
+				        </div>
+				        <div class="col-2">
+				            <div class="select-room-row area-select-section">
+				            	 <?php echo AwComponents::getArea('floor'); ?>
+				            </div>
+				        </div>
+				        <div class="clear"></div>
+				    </div>
+			    </div>
+		    </div>
+		<?php
+		$output = ob_get_clean();
+		return $output;
+	}
+
+	public static function getRoomType(){
+
+		$array_room 	= array();
+		$room_query 	= new WP_Query(array('post_type' => 'room', 'post_status' => 'publish', 'posts_per_page' => -1 ));
+
+		if ( $room_query->have_posts() ) :
+			while ( $room_query->have_posts() ) : $room_query->the_post();
+				$post_id              = get_the_ID();
+				$key_1_value          = get_post_meta($post_id, 'arrange_this_room_', true );
+				$array_room[$post_id] = $key_1_value;
+			endwhile;
+		endif;
+		asort($array_room);
+		array_filter($array_room);
+
+
+		$html = '';
+		$html .= '<select name="room" class="room_types" id="room_select_type">';
+		$html .= 	'<option>Select Room</option>';
+			    foreach($array_room as $key => $room) {
+					$post_id        = $key;
+					$sorted_order   = $room;
+					$title 			=  get_the_title( $post_id );
+
+					if(  $title == AwComponents::$selectedoption){
+        				$html .= 	'<option selected id="room_type_id_'.$post_id.'">'.$title.'</option>';
+					}else{
+						$html .= 	'<option id="room_type_id_'.$post_id.'">'.$title.'</option>';
+					}
+
+				}
+		$html .= '</select>';
+
+		return $html;
+	}
+
+	public static function getArea(){
+		$area_query = new WP_Query(array('post_type'=>'area', 'post_status'=>'publish', 'posts_per_page'=>-1));
+
+		$html = '';
+		$html .= '<select name="area" class="selected_area" id="area_select_type">';
+		$html .= 	'<option>Select Area</option>';
+		if ( $area_query->have_posts() ) :
+			while ( $area_query->have_posts() ) :
+				$area_query->the_post();
+
+				$html .= '<option id="room_type_id_'.get_the_ID().'">'.get_the_title().'</option>';
+
+			endwhile;
+        endif;
+		$html .= '</select>';
+
+		return $html;
+	}
+
+	public static function getFloorHeader(){
+		$roomTypeID =$_POST['roomID'];
+		$areaTypeID =$_POST['areaID'];
+		
+		$uniqid = uniqid();
+		$section_inner 	= 'aw_inner_section_'.$uniqid;
+
+		self::$sectionTypeID = $section_inner;
+		ob_start();
+		?>
+			<div class="area-wrapper">
+				<div class="row-wrapper">
+					<input type="hidden" name="sectionTypeID" value="<?php echo $section_inner;?>" />
+					<div class="col-3">
+						<div class="select-room-row">
+							<?php  $section_query = new WP_Query(array('post_type'=>'section', 'post_status'=>'publish', 'posts_per_page'=>-1));
+							   if ( $section_query->have_posts() ) : ?>
+								<select class="section<?php echo $room_n;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" id="section_<?php echo $section_inner;?>" name="section_<?php echo $section_inner;?>"><option>Select Section</option>
+								<?php while ( $section_query->have_posts() ) : $section_query->the_post(); ?>
+										<option><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+								</select>
+							<?php endif; ?>
+						</div>
+					</div>
+					<div class="col-3">
+						<div class="select-room-row">
+							<input type="text" placeholder="Square Feet" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="square" id="square_<?php echo $section_inner;?>" name="square_<?php echo $section_inner;?>">
+						</div>
+					</div>
+					<div class="col-3">
+						<div class="select-room-row">
+				      		<a type="button" class="uk-button uk-button-primary add_section">Add Section</a>
+				      		<a type="button" class="uk-button uk-button-danger remove_section">Remove Section</a>
+				      	</div>
+				   	</div>
+					<div class="clear"></div>
+				</div>
+				<!-- first  row ends-->
+			</div>
+		<?php
+		$output = ob_get_clean();
+		return $output;
+	}
+
+	public static function getFloor(){
+		$roomTypeID =$_POST['roomID'];
+		$areaTypeID =$_POST['areaID'];
+		
+		$uniqid = uniqid();
+		$section_inner 	= 'aw_inner_section_'.$uniqid;
+
+		self::$sectionTypeID = $section_inner;
+		ob_start();
+		?>
+			<div class="floor-wrapper">
+				<!-- second row start-->
+				<div class="row-wrapper">
+					<input type="hidden" name="sectionTypeID" value="<?php echo $section_inner;?>" />
+					<div class="col-1-3">
+						<div class="select-room-row">
+					   		<input type="text" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" data-roomID="<?php echo AwComponents::$roomTypeID;?>" data-areaID="<?php echo AwComponents::$areaTypeID;?>" name="supplier_<?php echo $section_inner;?>" class="supplier_<?php echo $section_inner;?>"placeholder="Enter the Tile Supplier, Manufacturer, Style Name and Number, Color Name and Number and / or Part Number" class="extra<?php echo $room_n;?>">
+					   	</div>
+					</div>
+					<div class="col-1-9">
+						<div class="select-room-row">
+							<?php  $tile_types_query = new WP_Query(array('post_type'=>'tile_types', 'post_status'=>'publish', 'posts_per_page'=>-1));
+							if ( $tile_types_query->have_posts() ) : ?>
+								<select class="tile_types_<?php echo $section_inner;?>"  data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"name="tile_types_<?php echo $section_inner;?>">
+									<option> Enter the Tile Types</option>
+									<?php while ( $tile_types_query->have_posts() ) : $tile_types_query->the_post(); ?>
+											<option><?php echo  the_title(); ?></option>
+									<?php endwhile; ?>
+								</select>
+							<?php endif; ?>
+						</div>
+					</div>
+					<div class="clear"></div>
+				</div>
+				<!-- second row ends-->
+				<!-- Third row start-->
+				<div class="row-wrapper">
+					<div class="col-5">
+						<div class="select-room-row">
+							<input type="text" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" placeholder="Tile Width (inches)" class="width_<?php echo $section_inner;?>" name="width_<?php echo $section_inner;?>">
+						</div>
+					</div>
+					<div class="col-5">
+						<div class="select-room-row">
+							<input type="text" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="length_<?php echo $section_inner;?>"name="length_<?php echo $section_inner;?>" placeholder="Tile Length (inches)" class="length" >
+						</div>
+					</div>
+					<div class="col-5">
+						<div class="select-room-row">
+							<?php  $tile_height_query = new WP_Query(array('post_type'=>'tile_height', 'post_status'=>'publish', 'posts_per_page'=>-1));
+								if ( $tile_height_query->have_posts() ) : ?>
+									<select  data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"class="tile_height_<?php echo $section_inner;?>" name="tile_height_<?php echo $section_inner;?>" id="tile_height">
+										<option> Tile Height</option>
+										<?php while ( $tile_height_query->have_posts() ) : $tile_height_query->the_post(); ?>
+											<option><?php echo  the_title(); ?></option>
+										<?php endwhile; ?>
+									</select>
+							<?php endif; ?>
+						</div>
+					</div>
+					<div class="col-5">
+						<div class="select-room-row">
+							<div id="upload-drop" class="uk-placeholder">
+						        <i class="uk-icon-cloud-upload uk-icon-medium uk-text-muted uk-margin-small-right"></i> <a class="uk-form-file">Select image<input id="upload-select" class="upload-select_<?php echo $room_n;?>" type="file"></a>.
+						    </div>
+						    <div id="progressbar" class="uk-progress uk-hidden">
+						        <div class="uk-progress-bar" style="width: 0%;">...</div>
+						    </div>
+						</div>
+					</div>
+					<div class="col-5">
+						<div class="select-room-row">
+							<div id="upload-drop1" class="uk-placeholder">
+						        <i class="uk-icon-cloud-upload uk-icon-medium uk-text-muted uk-margin-small-right"></i> <a class="uk-form-file">Select image<input id="upload-select1" class="upload-select1_<?php echo $room_n;?>" type="file"></a>.
+						    </div>
+						    <div id="progressbar1" class="uk-progress uk-hidden">
+						        <div class="uk-progress-bar" style="width: 0%;">...</div>
+						    </div>
+						</div>
+					</div>
+					<div class="clear"></div>
+				</div>
+				<!-- Third row ends-->
+				<!-- Fourth row start-->
+				<div class="row-wrapper">
+					<div class="col-3">
+						<div class="select-room-row">
+							<?php  global $wpdb;
+							$grout_brand_query = $wpdb->get_results( "SELECT  DISTINCT `meta_value`  FROM `wp_postmeta` WHERE `meta_key` LIKE 'brand'" );  ?>
+							<select data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" id="Brand_<?php echo $room_n;?>" class="barand_<?php echo $section_inner;?>" name="barand_<?php echo $section_inner;?>"> <option>Select Grout Brand </option>
+								<?php    //   [meta_id] [post_id]  [meta_key] [meta_value]
+								 foreach($grout_brand_query as $grout_brand){    ?>
+								   <option><?php echo $grout_brand->meta_value;?></option>
+								   <?php   }   ?>
+							</select>
+						</div>
+					</div>
+					<div class="col-3">
+						<div class="select-room-row">
+							<select data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="serries" id="serrries_<?php echo $section_inner;?>" name="serrries_<?php echo $section_inner;?>">
+								<option>Select Grout Series</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-3">
+						<div class="select-room-row">
+							<select data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="color" id="color_<?php echo $section_inner;?>" name="color_<?php echo $section_inner;?>">
+								<option>Select Grout Color</option>
+							</select>
+				      	</div>
+				   	</div>
+					<div class="clear"></div>
+				</div>
+				<!-- Fourth row ends-->
+
+				<!-- Fifth  row start-->
+				<div class="row-wrapper">
+					<div class="col-3">
+						<div class="select-room-row">
+							<?php  $lay_query = new WP_Query(array('post_type'=>'lay', 'post_status'=>'publish', 'posts_per_page'=>-1));
+							   if ( $lay_query->have_posts() ) : ?>
+								<select data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="lay_<?php echo $section_inner;?>"name="lay_<?php echo $section_inner;?>"><option>Select Tile Pattern</option>
+								<?php while ( $lay_query->have_posts() ) : $lay_query->the_post(); ?>
+										<option><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+								</select>
+							<?php endif; ?>
+					   	</div>
+					</div>
+					<div class="col-3">
+						<div class="select-room-row">
+							<?php  $direction_query = new WP_Query(array('post_type'=>'direction', 'post_status'=>'publish', 'posts_per_page'=>-1));
+							   if ( $direction_query->have_posts() ) : ?>
+								<select data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="direction<?php echo $room_n;?>"name="direction<?php echo $room_n;?>"><option>Select Lay Direction </option>
+								<?php while ( $direction_query->have_posts() ) : $direction_query->the_post(); ?>
+										<option><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+								</select>
+							<?php endif; ?>
+					   	</div>
+					</div>
+					<div class="col-3">
+						<div class="select-room-row">
+							<input type="text" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" placeholder="Any additional instructions" class="additional_<?php echo $section_inner;?>" name="additional_<?php echo $section_inner;?>">
+					   	</div>
+					</div>
+					<div class="clear"></div>
+				</div>
+				<!-- Fifth  row ends-->
+
+				<!-- Sixth  row start-->
+				<div class="row-wrapper">
+					<div class="col-4">
+						<div class="select-room-row">
+							<?php  $door_query = new WP_Query(array('post_type'=>'door', 'post_status'=>'publish', 'posts_per_page'=>-1));
+							   if ( $door_query->have_posts() ) : ?>
+								<select data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="direction_<?php echo $section_inner;?>"name="direction_<?php echo $section_inner;?>"><option>Select Tile Transition</option>
+								<?php while ( $door_query->have_posts() ) : $door_query->the_post(); ?>
+										<option><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+								</select>
+							<?php endif; ?>
+						</div>
+					</div>
+					<div class="col-4">
+						<div class="select-room-row">
+							<?php  $transitions_type_query = new WP_Query(array('post_type'=>'transitions_type', 'post_status'=>'publish', 'posts_per_page'=>-1));
+							   if ( $transitions_type_query->have_posts() ) : ?>
+								<select data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" id="transitions_<?php echo $section_inner;?>" name="transitions_<?php echo $section_inner;?>" class="transitions_type"><option>Select Transition Types </option>
+								<?php while ( $transitions_type_query->have_posts() ) : $transitions_type_query->the_post(); ?>
+										<option id="<?php echo get_the_ID();?>"><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+								</select>
+							<?php endif; ?>
+						</div>
+					</div>
+					<div class="col-4">
+						<div class="select-room-row">
+							<select data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="Direction" id="direction_<?php echo $section_inner;?>"name="direction_<?php echo $section_inner;?>">
+								<option>Select Transition</option>
+							</select>
+				      	</div>
+				   	</div>
+					<div class="col-4">
+						<div class="select-room-row">
+							 <input type="text" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" placeholder="Amount in LF" class="amount_<?php echo $section_inner;?>"name="amount_<?php echo $section_inner;?>">
+				      	</div>
+				   	</div>
+					<div class="clear"></div>
+				</div>
+				<!-- Sixth  row ends-->
+				<!-- seventh  row start-->
+				<div class="row-wrapper">
+					<div class="col-3">
+						<div class="select-room-row">
+							<select class="Underlayment" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" id="underlayment_<?php echo $section_inner;?>"name="underlayment_<?php echo $section_inner;?>">
+								<option>Select underlayment </option>
+							</select>
+						</div>
+					</div>
+					<div class="col-3">
+						<div class="select-room-row">
+							<select id="Thinest_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="Thinest_<?php echo $section_inner;?>" class="thinset">
+								<option>Select Thinset For underlayment </option>
+							</select>
+				      	</div>
+				   	</div>
+				   	<div class="col-3">
+						<div class="select-room-row">
+							<select id="Thinesttop_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="Thinesttop_<?php echo $section_inner;?>" class="Thinesttop">
+								<option>Select Thinset For Tile </option>
+							</select>
+						</div>
+					</div>
+					<div class="clear"></div>
+				</div>
+				<!-- seventh  row ends-->
+			</div>
+		<?php
+		$output = ob_get_clean();
+		return $output;
+	}
+
+	public static function getTubShower(){
+		$roomTypeID =$_POST['roomID'];
+		$areaTypeID =$_POST['areaID'];
+		
+		$uniqid = uniqid();
+		$section_inner 	= 'aw_inner_section_'.$uniqid;
+
+		self::$sectionTypeID = $section_inner;
+		ob_start();
+		?>
+		<div class="area-wrapper">
+			<!-- first  row start-->
+			<div class="row-wrapper">
+				<input type="hidden" name="sectionTypeID" value="<?php echo $section_inner;?>" />
+				<div class="col-1">
+					<div class="select-room-row">
+						<select id="height_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="height_<?php echo $section_inner;?>">
+			            	<option>Height</option>
+			            </select>
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<!-- first  row ends-->
+			<!-- second  row start-->
+			<div class="row-wrapper">
+				<div class="col-3">
+					<div class="select-room-row">
+						<?php  $edge_query = new WP_Query(array('post_type'=>'edge', 'post_status'=>'publish', 'posts_per_page'=>-1));
+					   	if ( $edge_query->have_posts() ) : ?>
+							<select class="edge_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="edge_<?php echo $section_inner;?>"> <option>Select Edge Treatment type </option>
+								<?php while ( $edge_query->have_posts() ) : $edge_query->the_post(); ?>
+										<option><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+							</select>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="col-3">
+					<div class="select-room-row">
+						<select class="transition_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="transition_<?php echo $section_inner;?>">
+		                	<option>Select Transition</option>
+		                </select>
+					</div>
+				</div>
+				<div class="col-3">
+					<div class="select-room-row">
+						<input type="text" placeholder="Amount" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="amount_<?php echo $section_inner;?>" name="amount_<?php echo $section_inner;?>">
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<!-- second  row ends-->
+
+			<!-- third  row start-->
+			<div class="row-wrapper">
+				<div class="col-3">
+					<div class="select-room-row">
+						<?php  $special_edge_query = new WP_Query(array('post_type'=>'special_edge', 'post_status'=>'publish', 'posts_per_page'=>-1));
+							if ( $special_edge_query->have_posts() ) : ?>
+							<select  class="instructions_<?php echo $section_inner;?>"data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="instructions_<?php echo $section_inner;?>"> <option>Select Edge Treatments Instructions </option>
+								<?php while ( $special_edge_query->have_posts() ) : $special_edge_query->the_post(); ?>
+									<option><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+							</select>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="col-3">
+					<div class="select-room-row">
+						<select  class="edge_instructions_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="edge_instructions_<?php echo $section_inner;?>">
+		                	<option> Edge Treatments Instructions</option>
+		                </select>
+					</div>
+				</div>
+				<div class="col-3">
+					<div class="select-room-row">
+		                <input placeholder="Additiona field" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="additional_<?php echo $section_inner;?>" name="additional_<?php echo $section_inner;?>" type="text">
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<!-- third  row ends-->
+
+			<!-- Fourth  row start-->
+			<div class="row-wrapper">
+				<div class="col-4">
+					<div class="select-room-row">
+						<?php  $niche_location_query = new WP_Query(array('post_type'=>'shelve_niche', 'post_status'=>'publish', 'posts_per_page'=>-1));
+						if ( $niche_location_query->have_posts() ) : ?>
+							<select class="corner_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="corner_<?php echo $section_inner;?>"><option>Corner Shelf Type</option>
+								<?php while ( $niche_location_query->have_posts() ) : $niche_location_query->the_post(); ?>
+									<option><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+							</select>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="col-4">
+					<div class="select-room-row">
+						<input type="text" placeholder="Qty" class="qty_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="qty_<?php echo $section_inner;?>">
+					</div>
+				</div>
+				<div class="col-4">
+					<div class="select-room-row">
+						<select class="location_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"name="location_<?php echo $section_inner;?>">
+		                	<option>Location</option>
+		                </select>
+					</div>
+				</div>
+				<div class="col-4">
+					<div class="select-room-row">
+						<?php  $shelves_height_query = new WP_Query(array('post_type'=>'shelves_height', 'post_status'=>'publish', 'posts_per_page'=>-1));
+						if ( $shelves_height_query->have_posts() ) : ?>
+						<select class="shelve_height_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="shelve_height_<?php echo $section_inner;?>">	<option>Height</option>
+							<?php while ( $shelves_height_query->have_posts() ) : $shelves_height_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+							<?php endwhile; ?>
+						</select>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<!-- Fourth  row ends-->
+
+			<!-- Fifth  row start-->
+			<div class="row-wrapper">
+				<div class="col-4">
+					<div class="select-room-row">
+						<?php  $niche_new_location_query = new WP_Query(array('post_type'=>'niches', 'post_status'=>'publish', 'posts_per_page'=>-1));
+						if ( $niche_new_location_query->have_posts() ) : ?>
+							<select class="niche_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"name="niche_<?php echo $section_inner;?>"><option>Niches Shelf Type</option>
+								<?php while ( $niche_new_location_query->have_posts() ) : $niche_new_location_query->the_post(); ?>
+									<option><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+							</select>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="col-4">
+					<div class="select-room-row">
+						<input type="text" placeholder="Qty" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="qtys_<?php echo $section_inner;?>" name="qtys_<?php echo $section_inner;?>">
+					</div>
+				</div>
+				<div class="col-4">
+					<div class="select-room-row">
+						<?php  $niche_location_query = new WP_Query(array('post_type'=>'niche_location', 'post_status'=>'publish', 'posts_per_page'=>-1));
+						if ( $niche_location_query->have_posts() ) : ?>
+							<select class="niche_location_<?php echo $section_inner;?>" name="niche_location_<?php echo $section_inner;?>"data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">	<option>Location</option>
+								<?php while ( $niche_location_query->have_posts() ) : $niche_location_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+							</select>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="col-4">
+					<div class="select-room-row">
+						<?php  $niche_height_query = new WP_Query(array('post_type'=>'niche_height', 'post_status'=>'publish', 'posts_per_page'=>-1));
+						if ( $niche_height_query->have_posts() ) : ?>
+							<select class="niche_height_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="niche_height_<?php echo $section_inner;?>"><option>Height</option>
+								<?php while ( $niche_height_query->have_posts() ) : $niche_height_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+								<?php endwhile; ?>
+							</select>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<!-- Fifth  row ends-->
+
+			<!-- Six  row start-->
+			<div class="row-wrapper">
+				<div class="col-1">
+					<div class="select-room-row">
+						<?php  $special_niche_query = new WP_Query(array('post_type'=>'special_niche', 'post_status'=>'publish', 'posts_per_page'=>-1));
+						if ( $special_niche_query->have_posts() ) : ?>
+							<select class="niche_instruction_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="niche_instruction_<?php echo $section_inner;?>">	<option>Special Niches Instructions</option>
+							<?php while ( $special_niche_query->have_posts() ) : $special_niche_query->the_post(); ?>
+									<option><?php echo  the_title(); ?></option>
+							<?php endwhile; ?>
+							</select>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<!-- Six  row ends-->
+		</div>
+
+		<?php
+		$output = ob_get_clean();
+		return $output;
+	}
+
+	public static function getFireplace(){
+		$roomTypeID =$_POST['roomID'];
+		$areaTypeID =$_POST['areaID'];
+		
+		$uniqid = uniqid();
+		$section_inner 	= 'aw_inner_section_'.$uniqid;
+
+		self::$sectionTypeID = $section_inner;
+		ob_start();
+		?>
+		<div class="area-wrapper">
+		    <div class="row-9 row-wrapper" >
+				<input type="hidden" name="sectionTypeID" value="<?php echo $section_inner;?>" />
+		        <div class="col-2">
+		            <div class="select-room-row">
+		                <select class="height_<?php echo $section_inner;?>" name="height_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+		                    <option>Height</option>
+		                </select>
+		            </div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		    <div class="row-10 row-wrapper" >
+		    	<div class="col-4">
+		            <div class="select-room-row">
+		            <?php  $edge_query = new WP_Query(array('post_type'=>'edge', 'post_status'=>'publish', 'posts_per_page'=>-1));
+		               if ( $edge_query->have_posts() ) : ?>
+		                <select class="edge_<?php echo $section_inner;?>"data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="edge_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"> <option>Select Edge Treatment type </option>
+		                <?php while ( $edge_query->have_posts() ) : $edge_query->the_post(); ?>
+		                        <option><?php echo  the_title(); ?></option>
+		                <?php endwhile; ?>
+		                </select>
+		            <?php endif; ?>
+		            </div>
+		        </div>
+		        <div class="col-4">
+		            <div class="select-room-row">
+		                <select class="transition_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="transition_<?php echo $section_inner;?>">
+		                    <option>Select Transition</option>
+		                </select>
+		            </div>
+		        </div>
+		        <div class="col-4">
+		            <div class="select-room-row">
+		                <input type="text" placeholder="Amount"data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"class="amount_<?php echo $section_inner;?>" name="amount_<?php echo $section_inner;?>">
+		            </div>
+		        </div>
+		        <div class="col-4">
+		            <div class="select-room-row">
+		                <input type="text" placeholder="LF" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="lf_<?php echo $section_inner;?>" name="lf_<?php echo $section_inner;?>">
+		            </div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		    <div class="row-11 row-wrapper" >
+		    	<div class="col-1">
+		            <div class="select-room-row">
+		                <?php  $special_edge_query = new WP_Query(array('post_type'=>'special_edge', 'post_status'=>'publish', 'posts_per_page'=>-1));
+		                if ( $special_edge_query->have_posts() ) : ?>
+		                <select  data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="instructions_<?php echo $section_inner;?>" name="instructions_<?php echo $section_inner;?>"> <option>Select Edge Treatments Instructions </option>
+		                <?php while ( $special_edge_query->have_posts() ) : $special_edge_query->the_post(); ?>
+		                <option><?php echo  the_title(); ?></option>
+		                <?php endwhile; ?>
+		                </select>
+		                <?php endif; ?>
+		            </div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		    <div class="row-12 row-wrapper" >
+		    	<div class="col-1">
+		            <div class="select-room-row">
+		                <select  data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="instructions_<?php echo $section_inner;?>" name="instructions_<?php echo $section_inner;?>">
+		                    <option> Edge Treatments Instructions</option>
+		                </select>
+		            </div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		    <div class="row-13 row-wrapper" >
+		        <div class="col-1">
+		            <div class="select-room-row">
+		        		<?php  $section_query = new WP_Query(array('post_type'=>'section', 'post_status'=>'publish', 'posts_per_page'=>-1));
+		                   if ( $section_query->have_posts() ) : ?>
+		                    <select class="sectionfire_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="sectionfire_<?php echo $section_inner;?>">    <option>Section</option>
+		                    <?php while ( $section_query->have_posts() ) : $section_query->the_post(); ?>
+		                            <option><?php echo  the_title(); ?></option>
+		                    <?php endwhile; ?>
+		                    </select>
+		                <?php endif; ?>
+		            </div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		    <div class="row-16 row-wrapper" >
+		        <div class="col-1">
+		            <div class="select-room-row">
+		            <?php  $deco_instruction_query = new WP_Query(array('post_type'=>'deco_instruction', 'post_status'=>'publish', 'posts_per_page'=>-1));
+		                   if ( $deco_instruction_query->have_posts() ) : ?>
+		                    <select class="accent_<?php echo $section_inner;?>"  data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="accent_<?php echo $section_inner;?>">    <option>Accent Instructions</option>
+		                    <?php while ( $deco_instruction_query->have_posts() ) : $deco_instruction_query->the_post(); ?>
+		                            <option><?php echo  the_title(); ?></option>
+		                    <?php endwhile; ?>
+		                    </select>
+		                <?php endif; ?>
+		            </div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		 </div>
+		<?php
+		$output = ob_get_clean();
+		return $output;
+	}
+
+	public static function getBacksplash(){
+		$roomTypeID =$_POST['roomID'];
+		$areaTypeID =$_POST['areaID'];
+		$uniqid = uniqid();
+		$section_inner 	= 'aw_inner_section_'.$uniqid;
+
+		self::$sectionTypeID = $section_inner;
+		ob_start();
+	?>
+	<div class="area-wrapper">
+	    <!-- first  row start-->
+	    <div class="row-wrapper">
+			<input type="hidden" name="sectionTypeID" value="<?php echo $section_inner;?>" />
+	        <div class="col-1">
+	        	<div class="select-room-row">
+		            <select class="height_<?php echo $section_inner;?>" name="height_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>"data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+		                <option>Height</option>
+		            </select>
+		        </div>
+	        </div>
+	        <div class="clear"></div>
+	    </div>
+	    <!-- first  row ends-->
+	    <!-- second  row start-->
+	    <div class="row-wrapper">
+	        <div class="col-4">
+	        	<div class="select-room-row">
+			        <?php  $edge_query = new WP_Query(array('post_type'=>'edge', 'post_status'=>'publish', 'posts_per_page'=>-1));
+			           if ( $edge_query->have_posts() ) : ?>
+			            <select class="edge_<?php echo $section_inner;?>" name="edge_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+			                <option>Select Edge Treatment type </option>
+			                <?php while ( $edge_query->have_posts() ) : $edge_query->the_post(); ?>
+			                <option><?php echo  the_title(); ?></option>
+			                <?php endwhile; ?>
+			            </select>
+			        <?php endif; ?>
+	        	</div>
+	        </div>
+	        <div class="col-4">
+	        	<div class="select-room-row">
+		            <select class="transition_<?php echo $section_inner;?>" name="transition_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+		                <option>Select Transition</option>
+		            </select>
+		        </div>
+	        </div>
+	        <div class="col-4">
+	        	<div class="select-room-row">
+		            <input type="text" placeholder="Amount" class="amount_<?php echo $section_inner;?>" name="amount_<?php echo $section_inner;?>"data-section="<?php echo $section_inner;?>"  data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+				</div>
+	        </div>
+	        <div class="col-4">
+	        	<div class="select-room-row">
+		            <input type="text" placeholder="LF" class="lf_<?php echo $section_inner;?>" name="lf_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+				</div>
+	        </div>
+	        <div class="clear"></div>
+	    </div>
+	    <!-- second  row ends-->
+
+	    <!-- third  row start-->
+	    <div class="row-wrapper">
+	        <div class="col-1">
+	        	<div class="select-room-row">
+		        <?php  $special_edge_query = new WP_Query(array('post_type'=>'special_edge', 'post_status'=>'publish', 'posts_per_page'=>-1));
+		        if ( $special_edge_query->have_posts() ) : ?>
+		            <select  class="edge_instructions_<?php echo $section_inner;?>" name="edge_instructions_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+		                <option>Select Edge Treatments Instructions </option>
+		                <?php while ( $special_edge_query->have_posts() ) : $special_edge_query->the_post(); ?>
+		                    <option><?php echo  the_title(); ?></option>
+		                <?php endwhile; ?>
+		            </select>
+		        <?php endif; ?>
+	        	</div>
+	        </div>
+	        <div class="clear"></div>
+	    </div>
+	    <!-- third  row ends-->
+
+	    <!-- Fourth  row start-->
+	    <div class="row-wrapper">
+	        <div class="col-1">
+	        	<div class="select-room-row">
+		            <select  class="instructions_<?php echo $section_inner;?>" name="instructions_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+		                <option> Edge Treatments Instructions</option>
+		            </select>
+		        </div>
+	        </div>
+	        <div class="clear"></div>
+	    </div>
+	    <!-- Fourth  row ends-->
+
+	    <!-- Fifth  row start-->
+	    <div class="row-wrapper">
+	    	<div class="col-1">
+	        	<div class="select-room-row">
+		        <?php  $deco_instruction_query = new WP_Query(array('post_type'=>'deco_instruction', 'post_status'=>'publish', 'posts_per_page'=>-1));
+		           if ( $deco_instruction_query->have_posts() ) : ?>
+		            <select class="accent_<?php echo $section_inner;?>" name="accent_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">    <option>Accent Instructions</option>
+		            <?php while ( $deco_instruction_query->have_posts() ) : $deco_instruction_query->the_post(); ?>
+		                    <option><?php echo  the_title(); ?></option>
+		            <?php endwhile; ?>
+		            </select>
+		        <?php endif; ?>
+	        	</div>
+	        </div>
+	        <div class="clear"></div>
+	    </div>
+	    <!-- Fifth  row ends-->
+	</div>
+	<?php
+	$output = ob_get_clean();
+	return $output;
+	}
+
+
+	public static function getShower(){
+		$roomTypeID =$_POST['roomID'];
+		$areaTypeID =$_POST['areaID'];
+		
+		$uniqid = uniqid();
+		$section_inner 	= 'aw_inner_section_'.$uniqid;
+
+		self::$sectionTypeID = $section_inner;
+		ob_start();
+		?>
+		<div class="area-wrapper">
+		    <!-- first  row start-->
+		    <div class="row-wrapper">
+				<input type="hidden" name="sectionTypeID" value="<?php echo $section_inner;?>" />
+		        <div class="col-1">
+		        	<div class="select-room-row">
+			        	<select class="height_<?php echo $section_inner;?>" name="height_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+			            	<option>Height</option>
+			            </select>
+			        </div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		    <!-- first  row ends-->
+		    <!-- second  row start-->
+		    <div class="row-wrapper">
+		        <div class="col-4">
+		    	    <div class="select-room-row">
+						<?php  $edge_query = new WP_Query(array('post_type'=>'edge', 'post_status'=>'publish', 'posts_per_page'=>-1));
+					   	if ( $edge_query->have_posts() ) : ?>
+						<select class="edge_<?php echo $section_inner;?>" name="edge_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"> <option>Select Edge Treatment type </option>
+						<?php while ( $edge_query->have_posts() ) : $edge_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+						<?php endwhile; ?>
+						</select>
+						<?php endif; ?>
+					</div>
+		        </div>
+		        <div class="col-4">
+		        	<div class="select-room-row">
+			        	<select class="transition_<?php echo $section_inner;?>" name="transition_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+		    	        	<option>Select Transition</option>
+		        	    </select>
+		        	</div>
+		        </div>
+		        <div class="col-4">
+		        	<div class="select-room-row">
+			        	<input type="text" placeholder="Amount" class="amount_<?php echo $section_inner;?>" name="amount_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+		    		</div>
+		        </div>
+		        <div class="col-4">
+		        	<div class="select-room-row">
+			        	<input type="text" placeholder="LF" class="lf_<?php echo $section_inner;?>" name="lf_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">
+		    		</div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		    <!-- second  row ends-->
+
+		    <!-- third  row start-->
+		    <div class="row-wrapper">
+		        <div class="col-1">
+		        	<div class="select-room-row">
+				        <?php  $special_edge_query = new WP_Query(array('post_type'=>'special_edge', 'post_status'=>'publish', 'posts_per_page'=>-1));
+					   	if ( $special_edge_query->have_posts() ) : ?>
+						<select  class="instructions_<?php echo $section_inner;?>" name="instructions_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"> <option>Select Edge Treatments Instructions </option>
+						<?php while ( $special_edge_query->have_posts() ) : $special_edge_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+						<?php endwhile; ?>
+						</select>
+						<?php endif; ?>
+					</div>
+			    </div>
+			    <div class="clear"></div>
+		    </div>
+		    <!-- third  row ends-->
+		    <!-- Fourth  row start-->
+		    <div class="row-wrapper">
+		        <div class="col-1">
+		        	<div class="select-room-row">
+			        	<select  class="instructions_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="instructions_<?php echo $section_inner;?>">
+		    	        	<option> Edge Treatments Instructions</option>
+		        	    </select>
+		        	</div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		    <!-- Fourth  row ends-->
+		    <!-- Fifth  row start-->
+		    <div class="row-wrapper">
+		    	<div class="col-1">
+		    		<div class="select-room-row">
+		        		<input type="text" placeholder="Additiona field" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="additional_<?php echo $section_inner;?>" name="additional_<?php echo $section_inner;?>" >
+		        	</div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		    <!-- Fifth  row ends-->
+		    <!-- Sixth  row start-->
+		    <div class="row-wrapper">
+		    	<div class="col-4">
+		    		<div class="select-room-row">
+		        		<?php  $niche_location_query = new WP_Query(array('post_type'=>'shelve_niche', 'post_status'=>'publish', 'posts_per_page'=>-1));
+						   if ( $niche_location_query->have_posts() ) : ?>
+							<select class="corner_shelf_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="corner_shelf_<?php echo $section_inner;?>"><option>Corner Shelf Type</option>
+							<?php while ( $niche_location_query->have_posts() ) : $niche_location_query->the_post(); ?>
+									<option><?php echo  the_title(); ?></option>
+							<?php endwhile; ?>
+							</select>
+						<?php endif; ?>
+					</div>
+			    </div>
+			    <div class="col-4">
+			    	<div class="select-room-row">
+				    	<input type="text" placeholder="Qty" class="qty_<?php echo $section_inner;?>"data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"  name="qty_<?php echo $section_inner;?>">
+					</div>
+			    </div>
+			    <div class="col-4">
+			    	<div class="select-room-row">
+					    <?php  $shelve_localtion_query = new WP_Query(array('post_type'=>'shelve_localtion', 'post_status'=>'publish', 'posts_per_page'=>-1));
+					   if ( $shelve_localtion_query->have_posts() ) : ?>
+						<select class="location_<?php echo $section_inner;?>" name="location_<?php echo $section_inner;?>"data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" ><option>Location</option>
+						<?php while ( $shelve_localtion_query->have_posts() ) : $shelve_localtion_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+						<?php endwhile; ?>
+						</select>
+						<?php endif; ?>
+					</div>
+			    </div>
+			    <div class="col-4">
+			    	<div class="select-room-row">
+					    <?php  $shelves_height_query = new WP_Query(array('post_type'=>'shelves_height', 'post_status'=>'publish', 'posts_per_page'=>-1));
+					    if ( $shelves_height_query->have_posts() ) : ?>
+						<select class="selves_height_<?php echo $section_inner;?>" name="selves_height_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">	<option> Height</option>
+						<?php while ( $shelves_height_query->have_posts() ) : $shelves_height_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+						<?php endwhile; ?>
+						</select>
+					<?php endif; ?>
+					</div>
+			    </div>
+			    <div class="clear"></div>
+		    </div>
+		    <!-- Sixthe  row ends-->
+		    <!-- Seventh  row start-->
+		    <div class="row-wrapper">
+		    	<div class="col-4">
+		    		<div class="select-room-row">
+			            <?php  $niche_new_location_query = new WP_Query(array('post_type'=>'niches', 'post_status'=>'publish', 'posts_per_page'=>-1));
+					   if ( $niche_new_location_query->have_posts() ) : ?>
+						<select class="niche_shelf_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"name="niche_shelf_<?php echo $section_inner;?>"><option>Niches Shelf Type</option>
+						<?php while ( $niche_new_location_query->have_posts() ) : $niche_new_location_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+						<?php endwhile; ?>
+						</select>
+					<?php endif; ?>
+					</div>
+		        </div>
+		        <div class="col-4">
+		        	<div class="select-room-row">
+			        	<input type="text" placeholder="Qty" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="qty_<?php echo $section_inner;?>"name="qty_<?php echo $section_inner;?>">
+		    		</div>
+		        </div>
+		        <div class="col-4">
+		            <div class="select-room-row">
+		            	<?php  $niche_location_query = new WP_Query(array('post_type'=>'niche_location', 'post_status'=>'publish', 'posts_per_page'=>-1));
+						   if ( $niche_location_query->have_posts() ) : ?>
+							<select class="location_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"name="location_<?php echo $section_inner;?>">	<option>Location</option>
+							<?php while ( $niche_location_query->have_posts() ) : $niche_location_query->the_post(); ?>
+									<option><?php echo  the_title(); ?></option>
+							<?php endwhile; ?>
+							</select>
+						<?php endif; ?>
+					</div>
+		        </div>
+		        <div class="col-4">
+		        	<div class="select-room-row">
+		           		<?php  $niche_height_query = new WP_Query(array('post_type'=>'niche_height', 'post_status'=>'publish', 'posts_per_page'=>-1));
+					   if ( $niche_height_query->have_posts() ) : ?>
+						<select class="height_<?php echo $section_inner;?>"data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="height_<?php echo $section_inner;?>"><option>Height</option>
+						<?php while ( $niche_height_query->have_posts() ) : $niche_height_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+						<?php endwhile; ?>
+						</select>
+					<?php endif; ?>
+		            </div>
+		        </div>
+		        <div class="clear"></div>
+		    </div>
+		    <!-- Seventh row ends-->
+		    <!-- Eight  row start-->
+		    <div class="row-wrapper">
+		    	<div class="col-4">
+		    		<div class="select-room-row">
+		               	<?php  $banche_query = new WP_Query(array('post_type'=>'banche', 'post_status'=>'publish', 'posts_per_page'=>-1));
+						   if ( $banche_query->have_posts() ) : ?>
+							<select class="bench_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"name="bench_<?php echo $section_inner;?>">	<option>Special Bench Type</option>
+							<?php while ( $banche_query->have_posts() ) : $banche_query->the_post(); ?>
+									<option><?php echo  the_title(); ?></option>
+							<?php endwhile; ?>
+							</select>
+						<?php endif; ?>
+		        	</div>
+		        </div>
+				<div class="col-4">
+					<div class="select-room-row">
+						<input type="text" placeholder="Qty" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" class="qty_<?php echo $section_inner;?>" name="qty_<?php echo $section_inner;?>">
+					</div>
+				</div>
+				<div class="col-4">
+					<div class="select-room-row">
+						<?php  $shelve_localtion_query = new WP_Query(array('post_type'=>'shelve_localtion', 'post_status'=>'publish', 'posts_per_page'=>-1));
+					   if ( $shelve_localtion_query->have_posts() ) : ?>
+						<select class="shelve_location_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>" name="shelve_location_<?php echo $section_inner;?>"><option>Location</option>
+						<?php while ( $shelve_localtion_query->have_posts() ) : $shelve_localtion_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+						<?php endwhile; ?>
+						</select>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="col-4">
+					<div class="select-room-row">
+						<?php  $shelves_height_query = new WP_Query(array('post_type'=>'shelves_height', 'post_status'=>'publish', 'posts_per_page'=>-1));
+					   if ( $shelves_height_query->have_posts() ) : ?>
+						<select class="shelve_height_<?php echo $section_inner;?>" name="shelve_height_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>">	<option>Height</option>
+						<?php while ( $shelves_height_query->have_posts() ) : $shelves_height_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+						<?php endwhile; ?>
+						</select>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="clear"></div>
+		    </div>
+		    <!-- Eight row ends-->
+		    <!-- Ninth  row start-->
+		    <div class="row-wrapper">
+		    	<div class="col-1">
+					<div class="select-room-row">
+			    	<?php  $special_niche_query = new WP_Query(array('post_type'=>'special_niche', 'post_status'=>'publish', 'posts_per_page'=>-1));
+					   if ( $special_niche_query->have_posts() ) : ?>
+						<select class="niche_instruction_<?php echo $section_inner;?>" data-section="<?php echo $section_inner;?>" data-room="<?php echo $roomTypeID;?>" data-area="<?php echo $areaTypeID;?>"name="niche_instruction_<?php echo $section_inner;?>">	<option>Special Niches Instructions</option>
+						<?php while ( $special_niche_query->have_posts() ) : $special_niche_query->the_post(); ?>
+								<option><?php echo  the_title(); ?></option>
+						<?php endwhile; ?>
+						</select>
+					<?php endif; ?>
+					</div>
+				</div>
+				<div class="clear"></div>
+		    </div>
+		    <!-- Ninth row ends-->
+		</div>
+		<?php
+		$output = ob_get_clean();
+		return $output;
+	}
+
+
+}/* class ends here */
+
+?>
