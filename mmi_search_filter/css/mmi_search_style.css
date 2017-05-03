@@ -1,0 +1,167 @@
+.three-box-row{ margin:2px; padding:0;}
+.three-box-row .one-third-box{ float:left; width:33.33%; }
+.three-box-row .one-third-box .inner-colmn{ padding:10px;}
+.clear{ clear:both;}
+.mmi-custom-search-filters{ margin-bottom:20px;}
+.mmi-custom-search-filters input, 
+.mmi-custom-search-filters select, 
+.mmi-custom-search-filters textarea{ padding:10px;}
+.mmi-custom-search-filters input[type='submit']{width:100%;padding:10px;font-size:17px}
+.page .mmi-custom-search-filters .one-third-box .mmi_button{display:none !important;}
+.mmi_search_content p{ margin:5px 0px;}
+.mmi_search_content h2{ margin-top:20px;}
+.three-box-row .one-half-box .inner-colmn{ padding:10px;}
+.three-box-row .one-half-box{ float:left; width:50%;}
+.mmi_button{font-size: 17px !important; text-align:center !important; padding: 8px !important;width: 100% !important; background: #959494 }
+.mmi_page{ padding: 5px !important; margin: 3px !important; font-weight: normal !important;}
+.mmi_page:hover{ text-decoration: underline !important;}	
+.mmi_page_selected{ padding: 10px !important; background:none !important; color: #000; font-weight: bold;}
+.loader_div {z-index: 100; display:none; float: right; margin: -10px 10px 0px 0px;}
+.download_file_type_responsive{ width:200px; display:none; float:right; margin-left: 8%; }
+.checkbox1{ background:none !important; }
+.checkbox2{ display:none; background:none !important; }
+.download_all{ background-color: #4B6F7B; border: medium none; font-size: 14px; box-shadow: none; color: #fff; cursor: pointer; padding: 2px 5px; width: auto; text-decoration: none; cursor:pointer; margin-left:5px; }
+.download_all_files{ float: right; margin-right: 10px; background-color: #4B6F7B; border: medium none; font-size: 14px; box-shadow: none; color: #fff; cursor: pointer; padding: 2px 5px; width: auto; text-decoration: none; cursor:pointer; }
+.no-files-seletected-selected{ display:none;text-align:right;color:red; }
+.no-files-seletected{ display:none;text-align:right;color:red; }
+.success-msg{ display:none;text-align:right;color:red; }
+.multi_div h2{float:left;}
+.fleft_pos{float:left;margin:30px 10px 0px 5px;}
+.fright_pos{float:right;}
+#searchsubmit{font-weight: bold; background: #ac7586 !important}
+.mmi-table thead tr th a{text-transform: capitalize;}
+.search .top-page-title-btn-cont-right{ margin-right: 130px; margin-bottom: 20px; }
+.sort{ padding: 5px; width: 200px; border-radius: 3px; }
+.download_file_type{ padding: 5px; width: 200px; border-radius: 3px; margin-left: 1%; }
+.download_all{ /*margin-right: 38.5%;*/ font-weight: bold; /*margin-top:8px;*/ border:1px solid #666 !important; background: none !important; color: #666 !important; float:none;}
+.mmi_modify_Data{ font-weight: bold; padding: 8px; font-size: 17px; margin-left: 5px; margin-bottom: 20px; border-radius: 2px; background:#959494; color:#FFF; display: inline-block; text-align: center; width: 100%; }
+.mmi_modify_Data:hover{ background-color: #A4A4A4; }
+.page .mmi_modify_Data{ display: none;}
+.btn-mmi-save{ display: inline !important; border:1px solid #666 !important; color: #666 !important; background: none !important; margin-left: 12px !important; font-weight: bold; height: 28px; }
+.search #searchform{ }
+.page .savesearchselect{ margin-top: -5.5% !important }
+.span_search{ display: none;}
+.element_color{ color: #999999;}
+.advance_form{ display: none; }
+.courseItem{ display: none; } 
+.segmentItem{ display: none; }
+#courseMessage{display: none; color: red;}
+#segmentMessage{display: none; color: red;}
+.goto_advance{color:#0000ff; font-weight:normal; text-decoration:underline;}
+.create_select_element{width:200px; display:block;}
+.li_searchtable{list-style:none;margin:0;}
+.td_searchtable{padding-left:10px; vertical-align:top;width:23px;}
+.mmi-table td{ vertical-align: text-top; padding-right: 10px;}
+.mmi-table th{ vertical-align: text-top; }
+.mmi-table {font-size: 14px; }
+.mmi-table td{ vertical-align: text-top; padding-right: 10px; text-align: justify;}
+.mmi-table th{ vertical-align: text-top; text-align: justify;}
+.mmi-table {font-size: 14px; }
+.savesearchselect{padding: 5px; width: 250px; border-radius: 3px; float: right;margin-right: 5px;margin-top: -12%; z-index: 1000px;text-decoration: none; position: relative; border-color: #ddd; color: #999;}
+.top-page-title-btn-cont .top-page-title-btn-cont-left{ width:100%; float:left; box-sizing: border-box; padding:0 10px;}
+.top-page-title-btn-cont .top-page-title-btn-cont-right{ width:30%; float:right; text-align:right; box-sizing: border-box; padding:0 10px;}
+.mmi_message_save{text-align: center;background:green;color:white;margin:10px; border:1px solid yellow; font-weight: bold; display:none; padding: 10px;}
+.clear{ clear:both;}
+.btn-mmi-delete{font-weight: bold;}
+.mmi_search_content span{ background: #a3d2da;}
+.download_file_type{display:inline-block !important;}
+.search_table{margin:-7px auto -10px auto;}
+.checkall{margin-left:10px}
+.selec_deselect{padding-left:30px; padding-top:2px;}
+.save_the_search{width: 100%;text-align:left; margin-top:20px;}
+.save_the_search_span{font-size:22px; font-weight:bold;}
+.search_name{margin-top:20px}
+.search_span{font-weight:700;}
+.save_search{margin-top:20px; margin-left:-15px;}
+.save_search_a{margin-left:15px; margin-top:20px; padding:5px 10px 5px 10px; border-radius: 2px; color: #FFF; background: #4B6F7B;}
+.search .savesearchselect{float: right;margin-right: 5px;margin-top: -52px; z-index: 1000px;text-decoration: none; position: relative;}
+.default_button{ background:#959494 !important; color:#FFF !important; border-color:#A4A4A4 !important;  }
+.modify-search-row{ display: none;}
+.smi{background: #ac7586 !important }
+.default_new_button { border :none !important; color: #618794 !important; font-size: 16px !important; padding: 1.5pt 7.5pt !important; text-decoration: underline !important;}
+.page .default_new_button{ display: none !important;}
+.page-template-multimedia-index .export_result{ display: none !important;}
+.page-template-multimedia-index .export{ display: none !important;}
+.export_result{ color: #618794; text-decoration: underline; margin-left: 14px;}
+.mmi_date_box{ display: none; }
+
+/*.links-col{margin:10px 0px 20px 0px;}*/
+.links-col{margin:20px 0px 20px 0px; padding-left: 10px;}
+.links-col a{text-decoration:underline; margin:0px 10px 0px 0px; display:inline-block; font-size:14px;color: #4b6f7b;}
+.links-col .mob{text-decoration:underline; margin:0px 10px 0px 12px; display:inline-block; font-size:14px;}
+.links-col ul{margin:0px; padding:0px; list-style:none; text-align:left;}
+.links-col ul li{margin:0px; padding:0px; list-style:none; display:inline-block; vertical-align:top;}
+.page .links-col ul li .export{ display: none; }
+.links-col ul li a{display:block; padding:10px 8px; font-size:15px; color:#4b6f7b; text-decoration:underline; outline: 0;}
+.links-col ul li a:hover{text-decoration:none; color:#4b6f7b;}
+.page .links-col ul li input{ display: none; } 
+.links-col ul li input{display:block; padding:10px 8px !important; font-size:15px !important; border:0px !important; background:none; color:#4b6f7b; text-decoration:underline; font-weight:bold; line-height:23px;}
+.links-col ul li input:hover{background:none; text-decoration: underline;}
+.links-col ul li a strong{}
+.ll_search_mob{padding:0px !important;}
+
+.search_title_bar{ padding: 11px !important}
+.page-id-19258 .site-container .site-inner .content .entry-header h1{ text-align: left; }
+.search .entry-title{text-align: left !important;}
+.field-msg span{ background-color:#fff; font-size:12px;margin-left:10px;font-weight:bold;} 
+.field-msg{margin-top:20px;}
+
+@media (min-device-width: 800px) and (max-width: 1024px){
+	.mmi_button { font-size: 12px !important; padding: 12px 5px !important; background-color: #959494; }
+	.mmi-custom-search-filters input[type="submit"]{ font-size:12px; padding-top: 13px; padding-bottom: 13px;}
+}
+
+@media only screen and (max-width: 800px) {
+  .three-box-row .one-third-box{ width:50%;}
+  .three-box-row .one-half-box{ width:100%;}
+  .ll_res_show_block{ display:block !important;}
+  .ll_res_hide_block{ display:none !important;}
+  .mmi_modify_Data{ background: #959494;  }
+  .searchsubmit{ background: #ac7586;  }
+  .search .savesearchselect{ width: 200px;}
+  .mmi_button { background-color: #959494 !important; }
+  .mmi_button:hover { background-color: #959494 !important; }
+
+}
+
+@media only screen and (max-width: 600px){
+.save-search-custom-position.cust-top-space{margin-top: -8px !important; }
+.mmi_button { background-color: #959494 !important; }
+  .mmi_button:hover { background-color: #959494 !important; }
+  
+}
+
+@media (min-width: 500px) and (max-width: 600px) {
+.search .savesearchselect{width:150px !important;}
+  .save-search-custom-position.cust-top-space{margin-top:-47px !important;}	
+}
+
+@media only screen and (max-width: 500px) {
+ .three-box-row .one-third-box{ width:100%;}
+ .download_all_files{ width: 100% !important; margin: 10px 0; margin-right: 0 !important;}
+ .download_all { width: 100% !important; margin: 10px 0px; }
+ .checkbox1{ display: none !important; }
+ .checkbox2{ display: block !important; margin-top: 10px; border: 1px solid #DDDDDD; }
+ .download_file_type_responsive{ display: block !important;}
+ .download_file_type{ display: none !important;}
+ .search .save-search-custom-position{ width:96%; margin-left: 7px; margin-top: 10px; float: none !important; height: 45px;}
+ .search .search_title_bar{ width:100% !important;}
+ .search .advaced_search_link{ float: none !important; }
+ .search .save_search_link{  float: none !important;  }
+ .search .export_result_link{  float: none !important; text-decoration:underline; padding-left:5px; color:#4b6f7b; }
+ .export_result{ color:#4b6f7b; margin-left: 0px; }
+ .export_result_mob{margin-left: 10px !important;}
+ .page .savesearchselect{ float: none;width: 98%; margin-top: 0%; margin-left: 3px;  }
+ .page .mmi_button{ display:none; }
+ .mmi_button{ background: #959494 !important;  }
+ #searchsubmit{ background: #ac7586 !important; }
+ .search .entry-title{ font-size: 20px;}
+ .search .default_new_button{ margin-left:5px !important; padding: 0px !important; }
+ .save-search-custom-position.cust-top-space{ margin-bottom: 15px }
+ .teacher_id_box{ min-height: 70px !important; }
+ .record_type_box{ min-height: 70px !important; }
+ .course_box{ min-height: 60px !important; }
+ .segment_box{ min-height: 70px !important; }
+ .record_id_box{ min-height: 70px !important; }
+ .thickbox.btn-mmi-save{font-size: 17px !important;}
+}
