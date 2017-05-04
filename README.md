@@ -45,3 +45,13 @@ More details [click here](https://github.com/dev-artworld/plugins/tree/master/aw
 Description Pending
 
 More details [click here](https://github.com/dev-artworld/plugins/tree/master/aw_calculation)
+
+## Plugin Name: [Track Your Investments](https://github.com/dev-artworld/plugins/tree/master/TrackYourInvestments)
+Description Pending
+
+More details [click here](https://github.com/dev-artworld/plugins/tree/master/TrackYourInvestments)
+
+## Plugin Name: [MMI Search Filter](https://github.com/dev-artworld/plugins/tree/master/mmi_search_filter)
+Description Pending
+
+More details [click here](https://github.com/dev-artworld/plugins/tree/master/mmi_search_filter)
