@@ -1,0 +1,6 @@
+dividend_id,stock_id,dividend_record_date,dividend_ex_date,dividend_payable_date,dividend_value,dividend_currency,dividend_tax,siblings,dividend_key,company_name,annc_type,interest_start,interest_end,interest_rate,remarks,base,giving,price,before_consolidation,after_consolidation,particulars
+1,11,2017-02-01,2017-02-01,2017-02-01,demovalue,USA,24.00%,test,test_key,test_comp,test_annc,test_start,test_end,test_end,testdone,test_base,test_giving,test_price,test_before,test_after,test_part
+2,11,2017-02-01,2017-02-01,2017-02-01,demovalue,USA,24.00%,test,test_key,test_comp,test_annc,test_start,test_end,test_end,testdone,test_base,test_giving,test_price,test_before,test_after,test_part
+3,11,2017-02-01,2017-02-01,2017-02-01,demovalue,USA,24.00%,test,test_key,test_comp,test_annc,test_start,test_end,test_end,testdone,test_base,test_giving,test_price,test_before,test_after,test_part
+4,11,2017-02-01,2017-02-01,2017-02-01,demovalue,USA,24.00%,test,test_key,test_comp,test_annc,test_start,test_end,test_end,testdone,test_base,test_giving,test_price,test_before,test_after,test_part
+5,11,2017-02-01,2017-02-01,2017-02-01,demovalue,USA,24.00%,test,test_key,test_comp,test_annc,test_start,test_end,test_end,testdone,test_base,test_giving,test_price,test_before,test_after,test_part

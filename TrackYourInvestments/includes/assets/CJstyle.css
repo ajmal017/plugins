@@ -1,0 +1,47 @@
+.uploadBtn{ 
+	text-align: right;
+	/*margin: 35px;*/
+  margin: 35px 21px 10px 10px;
+}
+.uploadBtn .stockfile {
+  padding: 15px 20px;
+  background: #0073AA;
+  border: 2px solid #0073AA;
+  color: #FFF;
+  font-weight: bold;
+  font-size: 22px;
+  border-radius: 3px;
+}
+.uploadBtn .stockBtn {display: none;}
+.uploadBtn .dividendBtn {display: none;}
+.uploadBtn .exchangeBtn {display: none;}
+.uploadBtn .stockpriceBtn {display: none;}
+
+.dividendChecklistBtn {background:#0073aa;border:2px solid #0073aa;border-radius:3px;color:#fff;font-size:20px;
+  font-weight:bold; margin-top: 20px;}
+.dividend-setting{ padding: 10px 30px; font-weight: bold; }
+.dividend-setting h3{ color: #0073AA; }
+.success {	text-align: center;}
+.success p {border: 2px solid green;float: none !important;padding: 10px 5px;width: 30%;border-radius: 4px;color: green;
+  display: none;margin: auto;font-size: 18px;font-weight: bold;}
+.errors {text-align: center;}
+.errors p {border: 2px solid green;float: none !important;padding: 10px 5px;width: 30%;border-radius: 4px;color: green;
+  display: none;margin: auto;font-size: 18px;font-weight: bold;}
+.delMessage {text-align: center;}
+.delMessage p {border: 2px solid red;float: none !important;padding: 10px 5px;width: 30%;border-radius: 4px;
+  color: red;display: none;margin: auto;font-size: 18px;font-weight: bold;}
+.inputfile {height: 40px;opacity: 0;overflow: hidden;position: absolute;width: 145px;z-index: 1;}
+.inputfile-1 + label {background-color: #0073AA;color: #f1e5e6;}
+.inputfile + label { cursor: pointer;display: inline-block;font-size: 1.25rem;font-weight: 700;max-width: 80%;overflow: hidden;padding: 0.625rem 1.25rem;text-overflow: ellipsis;white-space: nowrap;}
+.inputfile + label { cursor: pointer;font-size: 1.25rem;font-weight: 700;white-space: nowrap;}
+.loader{ text-align: center; display: none; }
+#back-action{float: left;}
+.stockPageURL{color: #fff; background-color: #0085ba; line-height: 28px; padding: 7px 12px; text-decoration: none; border-radius: 3px;}
+.stockPageURL:hover{ color: #fff; }
+.tyi_page_dividend #wpcontent #wpbody .wp-heading-inline{display: inline-block; margin-right: 10px;}
+.tyi_page_exchange_rate #wpcontent #wpbody .wp-heading-inline{display: inline-block; margin-right: 10px;}
+.downloadSample {text-decoration: none; padding: 0px 10px; box-shadow: none;}
+.downloadSample:hover{ color: #F1E5E6; }
+.downloadSample:focus{ color: #F1E5E6; }
+.duplicates table{width: 100%;}
+.duplicates table tbody{ text-align: center; }

@@ -1,0 +1,16 @@
+stock_id,stock_name,ticker,exchange_rate,exchange_name
+1,test1,ticker1,2,ex1
+2,test2,ticker2,5,ex2
+3,test3,ticker3,6,ex3
+4,test4,ticker4,8,ex4
+5,test5,ticker5,4,ex5
+6,test6,ticker6,2,ex6
+7,test7,ticker7,5,ex7
+8,test8,ticker8,6,ex8
+9,test9,ticker9,8,ex9
+10,test10,ticker10,4,ex10
+11,test11,ticker11,2,ex11
+12,test12,ticker12,5,ex12
+13,test13,ticker13,6,ex13
+14,test14,ticker14,8,ex14
+15,test15,ticker15,4,ex15

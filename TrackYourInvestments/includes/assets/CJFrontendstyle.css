@@ -1,0 +1,93 @@
+.clear{clear: both;}
+.account .success{ display: none; }
+.account .success span{ color: green; font-weight: 600; font-family: sans-serif; }
+.account .errors{display: none;}
+.account .errors span{color: red; font-weight: 600; font-family: sans-serif;}
+.account .loader{display: none; text-align: center;}
+.account .delete-account{display: none;}
+.account .delete-account span{ color: green; font-weight: 600; font-family: sans-serif;}
+
+.account-update .success{ display: none; }
+.account-update .success span{ color: green; font-weight: 600; font-family: sans-serif; }
+.account-update .errors{display: none;}
+.account-update .errors span{color: red; font-weight: 600; font-family: sans-serif;}
+.account-update .loader{display: none; text-align: center;}
+
+.investment-transaction .success{ display: none; }
+.investment-transaction .success span{ color: green; font-weight: 600; font-family: sans-serif; }
+.investment-transaction .errors{display: none;}
+.investment-transaction .errors span{color: red; font-weight: 600; font-family: sans-serif;}
+.investment-transaction .loader{display: none; text-align: center;}
+.investment-transaction .all-inv-tran-rec{font-size: 0.8rem;}
+
+/*.create-investment ul li{display: inline-block; padding: 0px 25px;}*/
+.create-investment select{width: 100%;}
+.create-investment thead tr th h2{font-weight: bold;}
+.create-investment td{ width: 50%; }
+.create-investment tbody tr  td table  tbody tr { background-color: #DCDCDC; }
+.create-investment tbody tr  td table  tbody tr .top-cols { text-align: center; padding: 20px 10px; }
+.create-investment tbody tr  td table  tbody tr .top-cols-1 { width: 20%; }
+.create-investment tbody tr  td table  tbody tr .top-cols-2 { width: 30%; }
+.create-investment tbody tr  td table  tbody tr .top-cols-3 { width: 30%; }
+.create-investment tbody tr  td table  tbody tr .top-cols-4 { width: 20%; }
+.create-investment tbody tr  td table  tbody tr .top-cols-4 button{ margin-top: 15px; }
+
+.all-inv-tran-rec tbody tr td{ font-weight: 500; }
+
+.investment-update .success{ display: none; }
+.investment-update .success span{ color: green; font-weight: 600; font-family: sans-serif; }
+.investment-update .errors{display: none;}
+.investment-update .errors span{color: red; font-weight: 600; font-family: sans-serif;}
+.investment-update .loader{display: none; text-align: center;}
+
+.update-investment ul li{display: inline-block; padding: 0px 22px;}
+.update-investment select{width: 100%;}
+.update-investment thead tr th h2{font-weight: bold;}
+.update-investment tbody tr  td table  tbody tr { background-color: #DCDCDC; }
+.update-investment tbody tr  td table  tbody tr .top-cols { text-align: center; padding: 20px 10px; }
+.update-investment tbody tr  td table  tbody tr .top-cols-1 { width: 20%; }
+.update-investment tbody tr  td table  tbody tr .top-cols-2 { width: 30%; }
+.update-investment tbody tr  td table  tbody tr .top-cols-3 { width: 30%; }
+.update-investment tbody tr  td table  tbody tr .top-cols-4 { width: 20%; }
+.update-investment tbody tr  td table  tbody tr .top-cols-4 button{ margin-top: 15px; }
+
+.dataTables_wrapper .dataTables_filter label input{width: 70%; display: inline;}
+
+.reporting-portfolio .success{display: none;} 
+.reporting-portfolio .errors{display: none;} 
+.reporting-portfolio .loader{display: none;}
+.reporting-portfolio .date-ranger{margin-top: 100px;}
+.reporting-portfolio .date-ranger div{width: 40%; float: right;}
+.reporting-portfolio-value{ margin-top: 70px; }
+.reporting-portfolio .date-ranger div input{width: 45%; float: right;}
+.reporting-portfolio .url{ display: none; }
+
+.reporting-portfolio-dates ul{list-style: none;}
+.reporting-portfolio-dates ul li{display: inline-block;padding: 0 20px;}
+
+.time-interval{ clear: both; margin-bottom: 10px; text-align: right;}
+.time-interval select{width: 20%;}
+
+.loader{ position:fixed; top:0; left:0; background:rgba(0,0,0,0.6); z-index:5; width:100%; height:100%; display:none; }
+
+.loader img{left: 45%; position: absolute; top: 45%;}
+
+.fl-left{
+	float: left; width: 130px;
+}
+.fl-right{
+	float: right; width: 130px;
+}
+.reporting-portfolio-dates ul li{
+	padding: 0px;
+}
+.chart-button-container{
+	float: right; margin-top: 10px;	
+}
+
+.num_error {display: none; color: red;}
+.rate_error {display: none; color: red;}
+.price_error {display: none; color: red;}
+.fees_error {display: none; color: red;}
+
+.account-empty h4{display: none; color: red;}
